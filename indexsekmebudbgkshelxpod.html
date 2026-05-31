@@ -8,7 +8,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Restorer - 修復者 - powered by Picture Grid Engine Ver 0.6 Full</title>
+<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.7</title>
 <style>
 body{margin:0;background:#222;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh}
 #game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
@@ -76,7 +76,7 @@ body{margin:0;background:#222;font-family:sans-serif;display:flex;justify-conten
  "events":[
   {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
   {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
-  {"id":"stone2","x":1400,"y":800,"title":"石碑③","text":"落石注意！"},
+  {"id":"stone3","x":1400,"y":800,"title":"石碑③","text":"落石注意！"},
   {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
  ]
 }
@@ -160,6 +160,10 @@ const miniCtx=
 
 let loadTarget = "present";
 const bgPresent = new Image();
+// createObjectURL解放用
+let currentPastObjectURL = null;
+let currentPresentObjectURL = null;
+
 bgPresent.onload=()=>{
     presentCtx.drawImage(
         bgPresent,
@@ -380,7 +384,11 @@ function draw(){
 	      )
 	   );
 	}
-	 ctx.clearRect(0,0,VIEW_W,VIEW_H);
+	ctx.clearRect(0,0,VIEW_W,VIEW_H);
+	//スマホFirefox MP4マゼンダ実験
+	ctx.fillStyle="magenta";
+	ctx.fillRect(0,0,VIEW_W,VIEW_H);
+
 	//現在画像
 	const source = bgPresent;
 	let mediaW = 0;
@@ -694,6 +702,19 @@ filePicker.onchange=e=>{
     const f=e.target.files[0];
     if(!f)return;
     const url=URL.createObjectURL(f);
+    // メモリ解放
+    if(loadTarget==="past"){
+	    if(currentPastObjectURL){
+	        URL.revokeObjectURL(currentPastObjectURL);
+	    }
+	    currentPastObjectURL=url;
+	}else{
+	    if(currentPresentObjectURL){
+	        URL.revokeObjectURL(currentPresentObjectURL);
+	    }
+	    currentPresentObjectURL=url;
+	}
+    
     // ====================
     // 過去LOAD
     // ====================
