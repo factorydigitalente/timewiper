@@ -183,6 +183,7 @@ if(/\.(mp4|webm)$/i.test(stage.past)){
     bgPast.loop = true;
     bgPast.muted = true;
     bgPast.playsInline = true;
+    bgPast.preload = "auto";
     bgPast.addEventListener("canplay",()=>{
 	    bgPast.play().catch(()=>{});
 	});
