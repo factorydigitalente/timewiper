@@ -779,23 +779,15 @@ loop();
    画面サイズに合わせてゲーム全体を縮小
 ===================================== */
 function fitGameToScreen(){
-
     const game=document.getElementById("game");
-
     const scale=Math.min(
         window.innerWidth / 854,
         window.innerHeight / 480
-    );
-
-    game.style.transform=
-        `scale(${scale})`;
-
-    game.style.transformOrigin=
-        "center center";
+    ) * 0.85;
+    game.style.transform = `scale(${scale})`;
+    game.style.transformOrigin = "center center";
 }
-
 fitGameToScreen();
-
 window.addEventListener(
     "resize",
     fitGameToScreen
