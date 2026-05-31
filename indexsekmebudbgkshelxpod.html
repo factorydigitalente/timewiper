@@ -10,7 +10,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.7</title>
 <style>
-body{margin:0;background:#222;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh}
+body{
+    margin:0;
+    background:#222;
+    font-family:sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+}
 #game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
 #statusBar,#message{
     grid-column:1/span 3;
@@ -106,6 +116,7 @@ body{margin:0;background:#222;font-family:sans-serif;display:flex;justify-conten
 <div id="right">
 	<button id="loadPastBtn">過去LOAD</button>
 	<button id="loadPresentBtn">現在LOAD</button>
+	<!-- mp4動画このゲームについてはAndroid版Firefox非対応 -->
 	<input
 	    id="filePicker"
 	    type="file"
@@ -764,6 +775,31 @@ filePicker.onchange=e=>{
 
 markVisited();
 loop();
+/* =====================================
+   画面サイズに合わせてゲーム全体を縮小
+===================================== */
+function fitGameToScreen(){
+
+    const game=document.getElementById("game");
+
+    const scale=Math.min(
+        window.innerWidth / 854,
+        window.innerHeight / 480
+    );
+
+    game.style.transform=
+        `scale(${scale})`;
+
+    game.style.transformOrigin=
+        "center center";
+}
+
+fitGameToScreen();
+
+window.addEventListener(
+    "resize",
+    fitGameToScreen
+);
 </script>
 </body>
 </html>
