@@ -183,9 +183,9 @@ if(/\.(mp4|webm)$/i.test(stage.past)){
     bgPast.loop = true;
     bgPast.muted = true;
     bgPast.playsInline = true;
-    bgPast.addEventListener("loadeddata",()=>{
-        bgPast.play().catch(()=>{});
-    });
+    bgPast.addEventListener("canplay",()=>{
+	    bgPast.play().catch(()=>{});
+	});
 }else{
     bgPast = new Image();
     bgPast.src = stage.past;
@@ -386,8 +386,8 @@ function draw(){
 	}
 	ctx.clearRect(0,0,VIEW_W,VIEW_H);
 	//スマホFirefox MP4マゼンダ実験
-	ctx.fillStyle="magenta";
-	ctx.fillRect(0,0,VIEW_W,VIEW_H);
+	//ctx.fillStyle="magenta";
+	//ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
 	//現在画像
 	const source = bgPresent;
