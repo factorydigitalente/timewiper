@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <!-- TimeWiper - 修復者 - -->
-<!-- ver20260531 -->
+<!-- ver20260601 -->
 <!-- Copyright (C) 2026 Factory Digital Entertainment & yo-LAbel. All rights reserved. -->
 <!-- このゲーム及び、ゲーム内の使用楽曲の著作権は全て、ファクトリー・デジタル・エンターテインメント、yo-LAbel、矢崎大信、OGAが有します。 -->
+<!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
 <!-- 上記の著作権者に無断で、これらの著作物を出版・放送・演奏・複製・公開に使用することを禁じます。 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.7</title>
+<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.75</title>
 <style>
 body{
     margin:0;
@@ -18,7 +19,7 @@ body{
     justify-content:center;
     align-items:center;
     width:100vw;
-    height:100dvh; //vhをやめdvhにすることでスマホ横持ち時の余白問題を調整
+    height:100dvh; /* vhをやめdvhにすることでスマホ横持ち時の余白問題を調整 */
     overflow:hidden;
 }
 #game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
@@ -42,32 +43,80 @@ body{
     left:50%;
     transform:translateX(-50%);
 }
-
-#gameLogo{
-    width:130px;
-    height:auto;
+#gameLogo{ width:130px; height:auto; }
+#right{
+    background:#bbb;
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    flex-direction:column;
+    gap:6px;
 }
-#right{background:#bbb;display:flex;justify-content:center;align-items:center}
-#right{flex-direction:column;gap:6px}
-#filePicker{
-    width:130px;
+#filePicker{ width:130px; }
+#pad{
+    display:grid;
+    grid-template-columns:repeat(3,40px);
+    gap:4px;
+    margin-top:60px;
 }
-#pad{display:grid;grid-template-columns:repeat(3,40px);gap:4px}
 #canvasWrap{position:relative;width:574px;height:384px}
-#cv{
-    position:absolute;
-    left:0;
-    top:0;
+#cv{ position:absolute; left:0; top:0; }
+#miniMap{ border:1px solid #333; background:#000; }
+#gridPos{ font-size:12px; font-weight:bold; }
+#gridControls{
+    display:flex;
+    gap:4px;
+    align-items:center;
 }
-#miniMap{
-    border:1px solid #333;
-    background:#000;
+#abButtons{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    margin-top:40px;
 }
-#gridPos{
-    font-size:12px;
+#btnA{position:relative;top:-4px;background:#d33;}
+#btnB{position:relative;top:4px;background:#36c;}
+#btnA,#btnB{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:2px solid #fff;
+    color:#fff;
+    font-size:28px;
     font-weight:bold;
 }
+button{
+    border:1px solid #fff;
+    border-radius:8px;
+    background:#555;
+    color:#fff;
+    font-weight:bold;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.3),
+        0 2px 4px rgba(0,0,0,.4);
+    cursor:pointer;
+}
+button:active{
+    transform:translateY(2px);
+    box-shadow:
+        inset 0 2px 4px rgba(0,0,0,.5);
+}
+#pad button{
+    font-size:28px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.pad-horizontal{ height:40px; }
+#padCenter{ visibility:hidden; }
 #dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;background:#111;color:#fff;border:2px solid #fff;padding:12px;width:380px}
+#loadButtons{
+    margin-top:6px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
 </style>
 </head>
 <body>
@@ -75,20 +124,20 @@ body{
 <!-- ステージデータ -->
 <script id="stageData" type="application/json">
 {
- "present":"./img/present.jpg",
- "past":"./img/past.mp4",
- "cols":16,
- "rows":12,
- "startX":1000,
- "startY":669,
- "zoom":1,
- "clearRate":60,
- "events":[
-  {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
-  {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
-  {"id":"stone3","x":1400,"y":800,"title":"石碑③","text":"落石注意！"},
-  {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
- ]
+	"present":"./img/present.jpg",
+	"past":"./img/past.mp4",
+	"cols":16,
+	"rows":12,
+	"startX":1000,
+	"startY":669,
+	"zoom":1,
+	"clearRate":60,
+	"events":[
+		{"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
+		{"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
+		{"id":"stone3","x":1400,"y":800,"title":"石碑③","text":"落石注意！"},
+		{"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+	]
 }
 </script>
 
@@ -97,16 +146,14 @@ body{
 
 <div id="left">
 <div id="logoBox">
-    <img id="gameLogo"
-         src="./img/logo.png"
-         alt="TimeWiper">
+    <img id="gameLogo" src="./img/logo.png" alt="TimeWiper">
 </div>
 <div id="pad">
-<button data-dx="-1" data-dy="-1">↖</button><button data-dx="0" data-dy="-1">↑</button><button data-dx="1" data-dy="-1">↗</button>
-<button data-dx="-1" data-dy="0">←</button><button disabled>●</button><button data-dx="1" data-dy="0">→</button>
-<button data-dx="-1" data-dy="1">↙</button><button data-dx="0" data-dy="1">↓</button><button data-dx="1" data-dy="1">↘</button>
+	<button class="pad-horizontal" data-dx="-1" data-dy="-1">↖</button><button class="pad-horizontal" data-dx="0" data-dy="-1">↑</button><button class="pad-horizontal" data-dx="1" data-dy="-1">↗</button>
+	<button class="pad-horizontal" data-dx="-1" data-dy="0">←</button><button id="padCenter" disabled></button><button class="pad-horizontal" data-dx="1" data-dy="0">→</button>
+	<button class="pad-horizontal" data-dx="-1" data-dy="1">↙</button><button class="pad-horizontal" data-dx="0" data-dy="1">↓</button><button class="pad-horizontal" data-dx="1" data-dy="1">↘</button>
 </div>
-</div>
+</div><!-- left終了 -->
 
 <div id="canvasWrap">
 <canvas id="cv" width="574" height="384"></canvas>
@@ -114,25 +161,25 @@ body{
 </div>
 
 <div id="right">
-	<button id="loadPastBtn">過去LOAD</button>
-	<button id="loadPresentBtn">現在LOAD</button>
+	<div id="loadButtons">
+		<button id="loadPastBtn">過去LOAD</button>
+		<button id="loadPresentBtn">現在LOAD</button>
+	</div>
 	<!-- mp4動画このゲームについてはAndroid版Firefox非対応 -->
-	<input
-	    id="filePicker"
-	    type="file"
-	    accept=".png,.jpg,.jpeg,.gif,.mp4,.webm"
-	    style="display:none"
-	>
+	<input id="filePicker" type="file" accept=".png,.jpg,.jpeg,.gif,.mp4,.webm" style="display:none">
 	<div id="gridPos">x0,y0</div><!-- グリッド上の座標 -->
 	<canvas id="miniMap"
 	        width="130"
 	        height="60"></canvas>
-	        
-	<button id="gridBtn">GRID</button>
-	<button id="zoomIn">＋</button>
-	<button id="zoomOut">－</button>
-	<button id="btnA">A</button>
-	<button id="btnB">B</button>
+	<div id="gridControls">
+		<button id="zoomOut">－</button>
+		<button id="gridBtn">GRID</button>
+		<button id="zoomIn">＋</button>
+	</div>
+	<div id="abButtons">
+		<button id="btnB">B</button>
+		<button id="btnA">A</button>
+	</div>
 </div>
 
 <div id="message">画像を読み込んで開始</div>
@@ -146,10 +193,10 @@ const VIEW_W=574,
       WORLD_W=2000,
       WORLD_H=1338;
 // ===== ゲームバランス設定 =====
-const PLAYER_SPEED = 3; //通常の移動速度
+const PLAYER_SPEED = 8; //通常の移動速度
 const DASH_MULTIPLIER = 4; //Bダッシュの倍数
 const RESTORE_BRUSH_SIZE = 130; //修復筆の太さ
-const EVENT_DISTANCE = 60; //イベント当たり判定距離
+const EVENT_DISTANCE = 80; //イベント当たり判定距離
 // ============================
 
 const player={
@@ -170,19 +217,15 @@ const miniCtx=
  .getContext("2d");
 
 let loadTarget = "present";
-const bgPresent = new Image();
+let bgPresent;
 // createObjectURL解放用
 let currentPastObjectURL = null;
 let currentPresentObjectURL = null;
 
+bgPresent = new Image();
 bgPresent.onload=()=>{
-    presentCtx.drawImage(
-        bgPresent,
-        0,
-        0,
-        WORLD_W,
-        WORLD_H
-    );
+    presentCtx.clearRect(0,0,WORLD_W,WORLD_H);
+    presentCtx.drawImage(bgPresent,0,0,WORLD_W,WORLD_H);
 };
 bgPresent.src=stage.present;
 
@@ -223,18 +266,11 @@ let dashActive=false;
 function markVisited(){
 	const gx=Math.max(
 	  0,
-	  Math.min(
-	    stage.cols-1,
-	    Math.floor(player.x/cellW)
-	  )
+	  Math.min(stage.cols-1,Math.floor(player.x/cellW))
 	);
-
 	const gy=Math.max(
 	  0,
-	  Math.min(
-	    stage.rows-1,
-	    Math.floor(player.y/cellH)
-	  )
+	  Math.min(stage.rows-1,Math.floor(player.y/cellH))
 	);
 	visited.add(gx + "," + gy);
 }
@@ -276,12 +312,7 @@ dialog.addEventListener("click",()=>{
 
 function drawMiniMap(){
 	 miniCtx.fillStyle="#000";
-	 miniCtx.fillRect(
-	   0,
-	   0,
-	   miniCtx.canvas.width,
-	   miniCtx.canvas.height
-	 );
+	 miniCtx.fillRect(0,0,miniCtx.canvas.width,miniCtx.canvas.height);
 	 const cellW=
 	   miniCtx.canvas.width/stage.cols;
 	 const cellH=
@@ -290,15 +321,10 @@ function drawMiniMap(){
 	   const [cx,cy]=
 	     key.split(",").map(Number);
 	   miniCtx.fillStyle="#0f0";
-	   miniCtx.fillRect(
-	     cx*cellW,
-	     cy*cellH,
-	     cellW,
-	     cellH
-	   );
+	   miniCtx.fillRect(cx*cellW,cy*cellH,cellW,cellH);
 	 });
 
-	/* イベント描画 */
+	// イベント描画
 	for(const e of events){
 	  	if(e.type==="goal" && !goalUnlocked) continue;
 		const ex=Math.floor(
@@ -312,15 +338,10 @@ function drawMiniMap(){
 		    e.type==="goal"
 		      ? "#0ff"
 		      : (e.read ? "#666" : "#ff0");
-		miniCtx.fillRect(
-		    ex*cellW,
-		    ey*cellH,
-		    cellW,
-		    cellH
-		);
+		miniCtx.fillRect(ex*cellW,ey*cellH,cellW,cellH);
 	}
 
-	/* プレイヤー描画（最後） */
+	// プレイヤー描画（最後）
 	const px=Math.max(
 	  0,
 	  Math.min(
@@ -337,14 +358,9 @@ function drawMiniMap(){
 	  )
 	);
 	miniCtx.fillStyle="#f00";
-	miniCtx.fillRect(
-	  px*cellW,
-	  py*cellH,
-	  cellW,
-	  cellH
-	);
+	miniCtx.fillRect(px*cellW,py*cellH,cellW,cellH);
 
-	/* 現在の視界枠 */
+	// 現在の視界枠
 	const srcW = VIEW_W / zoom;
 	const srcH = VIEW_H / zoom;
 	let sx = Math.max(
@@ -379,10 +395,7 @@ function draw(){
 	}else{
 	   sx = Math.max(
 	      0,
-	      Math.min(
-	         WORLD_W-srcW,
-	         player.x-srcW/2
-	      )
+	      Math.min( WORLD_W-srcW, player.x-srcW/2 )
 	   );
 	}
 	if(srcH >= WORLD_H){
@@ -390,10 +403,7 @@ function draw(){
 	}else{
 	   sy = Math.max(
 	      0,
-	      Math.min(
-	         WORLD_H-srcH,
-	         player.y-srcH/2
-	      )
+	      Math.min( WORLD_H-srcH, player.y-srcH/2 )
 	   );
 	}
 	ctx.clearRect(0,0,VIEW_W,VIEW_H);
@@ -440,23 +450,11 @@ function draw(){
 		    VIEW_H
 		);
 
-		ctx.drawImage(
-		    presentCanvas,
-		    sx,
-		    sy,
-		    srcW,
-		    srcH,
-		    0,
-		    0,
-		    VIEW_W,
-		    VIEW_H
-		);
-
+		ctx.drawImage(presentCanvas,sx,sy,srcW,srcH,0,0,VIEW_W,VIEW_H);
 	}else{
 		    ctx.fillStyle="#567";
 		    ctx.fillRect(0,0,VIEW_W,VIEW_H);
 	}
-
 	// グリッド罫線表示
 	if(showGrid){
 		ctx.strokeStyle="rgba(255,255,255,.35)";
@@ -507,48 +505,33 @@ function draw(){
 	// キャラ位置
 	const px=Math.max(
 	  8,
-	  Math.min(
-	    VIEW_W-8,
-	    (player.x-sx)*zoom
-	  )
+	  Math.min( VIEW_W-8, (player.x-sx)*zoom )
 	);
-
 	const py=Math.max(
 	  8,
-	  Math.min(
-	    VIEW_H-8,
-	    (player.y-sy)*zoom
-	  )
+	  Math.min( VIEW_H-8, (player.y-sy)*zoom )
 	);
-	
 	ctx.fillStyle="red";
 	ctx.beginPath();
 	ctx.arc(px,py,8,0,Math.PI*2);
 	ctx.fill();
-	 
-	 const rate=paintRate();
+	const rate=paintRate();
 	if(rate>=stage.clearRate)
 	    goalUnlocked=true;
 	drawMiniMap();
 	const gx=Math.max(
-	  0,
-	  Math.min(
-	    stage.cols-1,
-	    Math.floor(player.x/cellW)
-	  )
+		0,
+		Math.min( stage.cols-1, Math.floor(player.x/cellW) )
 	);
 
 	const gy=Math.max(
-	  0,
-	  Math.min(
-	    stage.rows-1,
-	    Math.floor(player.y/cellH)
-	  )
+		0,
+		Math.min( stage.rows-1, Math.floor(player.y/cellH) )
 	);
 	statusBar.textContent =
-	`X:${Math.floor(player.x)}  Y:${Math.floor(player.y)}  塗り率:${rate.toFixed(1)}%  Zoom:${zoom.toFixed(1)}`;
+	`X:${Math.floor(player.x)}  Y:${Math.floor(player.y)}  塗り率:${rate.toFixed(1)}%`;
 	gridPos.textContent =
-	`x${gx},y${gy}`;
+	`x${gx},y${gy} 　  Zoom:${zoom.toFixed(1)}`;
 	message.textContent =
 	goalUnlocked
 	  ? "🏁 ゴール解放！"
@@ -571,7 +554,6 @@ function loop(){
 				const currentSpeed=
 				  PLAYER_SPEED *
 				  (dashActive ? DASH_MULTIPLIER : 1);
-
 				player.x=Math.max(
 				  0,
 				  Math.min(
@@ -579,7 +561,6 @@ function loop(){
 				    player.x+dx*currentSpeed
 				  )
 				);
-
 				player.y=Math.max(
 				  0,
 				  Math.min(
@@ -587,12 +568,9 @@ function loop(){
 				    player.y+dy*currentSpeed
 				  )
 				);
-
 				presentCtx.save();
-
 				presentCtx.globalCompositeOperation =
 				    "destination-out";
-
 				presentCtx.strokeStyle="#000";
 				//修復筆の太さ
 				presentCtx.lineWidth = RESTORE_BRUSH_SIZE;
@@ -638,14 +616,12 @@ addEventListener("keydown",e=>{
 	          dashActive=true;
 	     }
 	}
-
 	if(
 	    dialogOpen &&
 	    e.key==="Enter"
 	){
 	    closeEvent();
 	}
-
 });
 addEventListener("keyup",e=>{
 	 const key=e.key.toLowerCase();
@@ -666,10 +642,7 @@ document.querySelectorAll("[data-dx]").forEach(b=>{
 gridBtn.onclick=()=>showGrid=!showGrid;
 zoomIn.onclick=()=>zoom=Math.min(8,zoom*1.2);
 zoomOut.onclick=()=>
-  zoom=Math.max(
-    MIN_ZOOM,
-    zoom/1.2
-  );
+  zoom=Math.max( MIN_ZOOM, zoom/1.2 );
 btnA.onclick=()=>{
     if(dialogOpen){
         closeEvent();
@@ -727,9 +700,7 @@ filePicker.onchange=e=>{
 	    currentPresentObjectURL=url;
 	}
     
-    // ====================
     // 過去LOAD
-    // ====================
     if(loadTarget==="past"){
         if(/\.(mp4|webm)$/i.test(f.name)){
             const video=document.createElement("video");
@@ -750,34 +721,20 @@ filePicker.onchange=e=>{
         }
         return;
     }
-    // ====================
     // 現在LOAD
-    // ====================
     const img=new Image();
-    img.onload=()=>{
-        bgPresent.src=url;
-        presentCtx.clearRect(
-            0,
-            0,
-            WORLD_W,
-            WORLD_H
-        );
-        presentCtx.drawImage(
-            img,
-            0,
-            0,
-            WORLD_W,
-            WORLD_H
-        );
-    };
+	img.onload=()=>{
+	    bgPresent=img;
+		presentCtx.clearRect(0,0,WORLD_W,WORLD_H);
+		presentCtx.drawImage(bgPresent,0,0,WORLD_W,WORLD_H);
+	};
     img.src=url;
 };
 
 markVisited();
 loop();
-/* =====================================
-   画面サイズに合わせてゲーム全体を縮小
-===================================== */
+
+// 画面サイズに合わせてゲーム全体を縮小
 function fitGameToScreen(){
     const game=document.getElementById("game");
     const scale=Math.min(
