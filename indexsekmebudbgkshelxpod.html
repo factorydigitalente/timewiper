@@ -2,14 +2,14 @@
 <html lang="ja">
 <!-- TimeWiper - 修復者 - -->
 <!-- ver20260602 -->
-<!-- Copyright (C) 2026 Factory Digital Entertainment & yo-LAbel. All rights reserved. -->
+<!-- Copyright (C) 2026 Factory Digital Entertainment. All rights reserved. -->
 <!-- このゲーム及び、ゲーム内の使用楽曲の著作権は全て、ファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
 <!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
 <!-- 上記の著作権者に無断で、これらの著作物を出版・放送・演奏・複製・公開に使用することを禁じます。 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.8</title>
+<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.85</title>
 <style>
 body{
     margin:0; background:#222; font-family:sans-serif; display:flex; justify-content:center;
@@ -59,6 +59,26 @@ button:active{
 #padCenter{ visibility:hidden; }
 #dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;background:#111;color:#fff;border:2px solid #fff;padding:12px;width:380px}
 #loadButtons{ margin-top:6px; text-align:center; display:flex; flex-direction:column; gap:4px; }
+/* タッチ要求画面 */
+#press-panel{ position:fixed; inset:0; z-index:1002; background:rgba(0,0,0,.5); color:#fff; display:flex; justify-content:center; align-items:center;}
+#press-text{ text-align:center; font-size:72px; font-weight:bold; line-height:1.6;animation:pressBlink 2.5s infinite;}
+@keyframes pressBlink{
+    0%{ opacity:1; }
+    50%{ opacity:0.2; }
+    100%{ opacity:1; }
+}
+/* タイトル画面 */
+#title-panel{ position:fixed; inset:0; z-index:1001; background:rgba(0,0,0,.85); display:none; flex-direction:column; 
+	justify-content:center; align-items:center; gap:24px;}
+#title-image{  width:700px; height:auto;}
+.modal-button{ padding:12px 32px; font-size:20px; font-weight:bold;}
+#start-game-btn{padding:18px 48px;font-size:32px;}
+#title-bgm-ctrl{ display:flex; align-items:center; gap:8px; color:#fff;}
+.switch{ position:relative; display:inline-block; width:52px; height:28px;}
+.switch input{ display:none;}
+.slider{ position:absolute; inset:0; background:#666; border-radius:28px;}
+.slider::before{ content:""; position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s;}
+.switch input:checked + .slider::before{ transform:translateX(24px);}
 </style>
 </head>
 <body>
@@ -69,6 +89,7 @@ button:active{
 	{
 		"title":"秘密都市",
 		"gameType":"paint",
+		"bgm":"./bgm/bgm_s1.mp3",
 		"thumb":"./img/thumb01.jpg",
 		"present":"./img/1st_present.jpg",
 		"past":"./img/1st_past.mp4",
@@ -105,6 +126,7 @@ button:active{
 	{
 		"title":"庭園",
 		"gameType":"restoring",
+		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/thumb03.jpg",
 		"present":"./img/3rd_present.jpg",
 		"past":"./img/3rd_past.jpg",
@@ -123,6 +145,25 @@ button:active{
 	}
 ]
 </script>
+
+<div id="press-panel">
+    <div id="press-text">
+        Please Touch<br>or<br>Press Any Key
+    </div>
+</div><!-- press-panel終了 -->
+
+<div id="title-panel">
+    <img src="./img/title.png" alt="" id="title-image">
+    <button id="start-game-btn" class="modal-button primary">ゲーム開始</button>
+    <div id="title-bgm-ctrl">
+        <span class="label-text">♪</span>
+        <label class="switch">
+            <input type="checkbox" id="title-btn-bgm" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+    <small style="color:#fff;">©2026 Factory Digital Entertainment</small>
+</div><!-- title-panel終了 -->
 
 <div id="game">
 <div id="statusBar">
@@ -144,7 +185,7 @@ button:active{
 <div id="canvasWrap">
 <canvas id="cv" width="574" height="384"></canvas>
 <div id="dialog"><h3 id="dlgTitle"></h3><div id="dlgText"></div></div>
-</div>
+</div><!-- canvasWrap終了 -->
 
 <div id="right">
 	<div id="loadButtons">
@@ -164,15 +205,62 @@ button:active{
 		<button id="btnB">B</button>
 		<button id="btnA">A</button>
 	</div>
-</div>
+</div><!-- right終了 -->
 
 <div id="message">画像を読み込んで開始</div>
-</div>
+</div><!-- game終了 -->
 
 <script>
 const stages=JSON.parse(document.getElementById("stageData").textContent);
 let currentStage=null;
 let currentStageIndex=0;
+
+//BGM切替関数
+function playStageBGM(stageData){
+    const bgmPath=stageData.bgm || DEFAULT_BGM;
+    if(bgmPlayer.src.endsWith(bgmPath)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=bgmPath;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function isTitlePanelOpen(){
+    return document.getElementById("title-panel").style.display==="flex";
+}
+function showTitlePanel(){
+    if(pressOpened){
+        return;
+    }
+    pressOpened=true;
+    document.getElementById("press-panel").style.display="none";
+    document.getElementById("title-panel").style.display="flex";
+    playTitleBGM();
+}
+function playTitleBGM(){
+    if(bgmPlayer.src.endsWith(TITLE_BGM)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=TITLE_BGM;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function playClearBGM(){
+    if(bgmPlayer.src.endsWith(CLEAR_BGM)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=CLEAR_BGM;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function playSE(src){
+    const se=new Audio(src);
+    se.volume=0.8;
+    se.play().catch(()=>{});
+}
 
 // 画像切替専用関数
 function loadStageMedia(stageData){
@@ -212,6 +300,7 @@ function registerStageClear(){
 function loadStage(stageData){
 	console.log("loadStage",stageData);
 	loadStageMedia(stageData);
+	playStageBGM(stageData);
     currentStage=stageData;
     player.x=currentStage.startX;
     player.y=currentStage.startY;
@@ -244,6 +333,7 @@ function loadStage(stageData){
 	markVisited();
 }
 let gameMode="stageSelect";
+let pressOpened=false;
 // ゲーム基本情報
 const GAME_TITLE="TimeWiper - 修復者 -";
 const GAME_REPAIRRATE="修復率";
@@ -331,6 +421,18 @@ let loadTarget = "present";
 
 let bgPresent;
 let bgPast;
+
+//BGM管理
+const bgmPlayer=new Audio();
+bgmPlayer.loop=true;
+bgmPlayer.volume=0.7;
+
+const DEFAULT_BGM="./bgm/bgm_stagebase.mp3";
+const TITLE_BGM="./bgm/bgm_title.mp3";
+const CLEAR_BGM="./bgm/bgm_clear.mp3";
+const SE_BACK="./bgm/effect_back.mp3";
+const SE_GO="./bgm/effect_go.mp3";
+
 // キャラ画像読み込み
 const playerImage=new Image();
 playerImage.src="./img/chara_white.png";
@@ -434,6 +536,7 @@ function nearestEvent(){
 function openEvent(){
 	 const e=nearestEvent();
 	 if(!e)return;
+	 playSE(SE_GO);
 	 e.read=true;
 	 dlgTitle.textContent=e.title;
 	 dlgText.textContent=e.text;
@@ -674,6 +777,7 @@ function updateEnding(){
     }
     else if(endingPhase===4){
         if(elapsed>=ENDING_WAIT_2){
+        	playClearBGM();
             endingPhase=5;
             endingPhaseStart=now;
         }
@@ -1071,9 +1175,19 @@ function loop(){
 //Space   調べる
 //J       調べる（互換）
 addEventListener("keydown",e=>{
+    if(!pressOpened){
+        showTitlePanel();
+        return;
+    }
+    if(isTitlePanelOpen()){
+        return;
+    }
 	const key=e.key.toLowerCase();
 	keys[key]=true;
 	if(gameMode==="stageSelect"){
+	    if(bgmPlayer.paused){
+	        playTitleBGM();
+	    }	
 	    if(key==="arrowleft"){
 	        moveStageCursor(-1,0);
 	    }
@@ -1135,6 +1249,12 @@ addEventListener("keyup",e=>{
 
 document.querySelectorAll("[data-dx]").forEach(b=>{
      const on=()=>{
+        if(isTitlePanelOpen()){
+            return;
+        }
+	    if(gameMode==="stageSelect" && bgmPlayer.paused){
+	        playTitleBGM();
+	    }
         const dx=+b.dataset.dx;
         const dy=+b.dataset.dy;
         if(gameMode==="stageSelect"){
@@ -1155,9 +1275,16 @@ document.querySelectorAll("[data-dx]").forEach(b=>{
 
 // ステージ選択に戻るボタンの処理
 backBtn.onclick=()=>{
+    if(isTitlePanelOpen()){
+        return;
+    }
     if(bgPast instanceof HTMLVideoElement){
         bgPast.pause();
     }
+    playSE(SE_BACK);
+	setTimeout(()=>{
+	    playTitleBGM();
+	},500);
     gameMode="stageSelect";
     stageCursorX=currentStageIndex % STAGE_SELECT_COLS;
     stageCursorY=Math.floor(currentStageIndex / STAGE_SELECT_COLS);
@@ -1167,6 +1294,9 @@ zoomIn.onclick=()=>zoom=Math.min(8,zoom*1.2);
 zoomOut.onclick=()=>
   zoom=Math.max( MIN_ZOOM, zoom/1.2 );
 btnA.onclick=()=>{
+    if(isTitlePanelOpen()){
+        return;
+    }
 	if(gameMode==="stageSelect"){
 		const index=
 		    stageCursorY*STAGE_SELECT_COLS+
@@ -1271,10 +1401,26 @@ filePicker.onchange=e=>{
 };
 
 loadStage(stages[0]);
-
 markVisited();
 loop();
 
+document.getElementById("press-panel").style.display="flex";
+document.getElementById("title-panel").style.display="flex";
+
+document.getElementById("press-panel")
+.addEventListener(
+    "pointerdown",
+    ()=>{
+        showTitlePanel();
+    }
+);
+document.getElementById("start-game-btn")
+.addEventListener(
+    "click",
+    ()=>{
+        document.getElementById("title-panel").style.display="none";
+    }
+);
 // 画面サイズに合わせてゲーム全体を縮小
 function fitGameToScreen(){
     const game=document.getElementById("game");
