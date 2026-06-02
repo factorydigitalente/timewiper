@@ -18,9 +18,8 @@ body{
     overflow:hidden;
 }
 #game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
-#statusBar,#message{
-    grid-column:1/span 3; background:#333; color:#fff; padding:6px; box-sizing:border-box;
-}
+#statusBar,#message{ grid-column:1/span 3; background:#333; color:#fff; padding:6px; box-sizing:border-box; }
+#message{ text-align:center; } /* 最下部メッセージ */
 .stageTitle{ font-weight:bold; font-size:18px; }
 #left{ background:#bbb; display:flex; justify-content:center; align-items:center; position:relative; }
 #logoBox{ position:absolute; top:12px; left:50%; transform:translateX(-50%); }
@@ -102,10 +101,10 @@ button:active{
 		"goalCondition":"修復率60%以上でゴール解放",
 		"endingMessage":"世界は、本来の姿を取り戻した。",
 		"events":[
-			{"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
-			{"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
-			{"id":"stone3","x":1400,"y":800,"title":"石碑③","text":"落石注意！"},
-			{"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+		    {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
+		    {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
+		    {"id":"stone3","x":1400,"y":800,"hiddenUntilRepair":true,"title":"石碑③","text":"落石注意！"},
+		    {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
 		]
 	},
 	{
@@ -127,22 +126,101 @@ button:active{
 		"title":"庭園",
 		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
+		"bgm2":"./bgm/bgm_s4.mp3",
 		"thumb":"./img/thumb03.jpg",
 		"present":"./img/3rd_present.jpg",
 		"past":"./img/3rd_past.jpg",
-		"cols":6,
-		"rows":4,
+		"cols":3,
+		"rows":3,
 		"startX":500,
 		"startY":400,
-		"zoom":0.29,
-		"clearRate":80,
-		"goalCondition":"接合完了後、修復率80%以上でゴール解放",
+		"zoom":0.285,
+		"clearRate":95,
+		"goalCondition":"接合完了後、修復率95%以上でゴール解放",
 		"endingMessage":"庭園は、本来の姿を取り戻した。",
 		"events":[
 			{"id":"stone1","x":500,"y":500,"title":"テスト石碑","text":"第3ステージです。"},
+			{"id":"stone2","x":800,"y":500,"hiddenUntilRepair":true,"title":"テスト石碑","text":"隠しイベントです。"},
 			{"id":"goal","x":1200,"y":700,"type":"goal","title":"ゴール","text":"クリア！"}
 		]
+	},
+
+	{
+		"title":"仮4",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮5",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮6",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮7",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮8",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
 	}
+
 ]
 </script>
 
@@ -211,13 +289,32 @@ button:active{
 </div><!-- game終了 -->
 
 <script>
-const stages=JSON.parse(document.getElementById("stageData").textContent);
+let stages;
+try{
+    stages=JSON.parse(
+        document.getElementById("stageData").textContent
+    );
+}catch(err){
+    console.error(err);
+    alert(
+        "stageData のJSONにエラーがあります。\n\n"+
+        err.message
+    );
+    throw err;
+}
 let currentStage=null;
 let currentStageIndex=0;
 
 //BGM切替関数
 function playStageBGM(stageData){
-    const bgmPath=stageData.bgm || DEFAULT_BGM;
+    let bgmPath;
+    if(
+        stageData.gameType==="restoring" && repairPhase===2
+    ){
+        bgmPath = stageData.bgm2 || stageData.bgm || DEFAULT_BGM;
+    }else{
+        bgmPath = stageData.bgm ||  DEFAULT_BGM;
+    }
     if(bgmPlayer.src.endsWith(bgmPath)){
         return;
     }
@@ -257,6 +354,9 @@ function playClearBGM(){
     bgmPlayer.play().catch(()=>{});
 }
 function playSE(src){
+    if(!soundEnabled){
+        return;
+    }
     const se=new Audio(src);
     se.volume=0.8;
     se.play().catch(()=>{});
@@ -350,11 +450,12 @@ const RESTORE_BRUSH_SIZE = 130; //修復筆の太さ
 const EVENT_DISTANCE = 80; //イベント当たり判定距離
 const USE_CHARACTER_IMAGE=true; //キャラ画像ON/OFF
 const CHARACTER_SIZE=28; //キャラ画像サイズ
-const ENDING_ZOOM_TIME    = 1000; //①ステージクリア時にズームして全体を見せるまでの秒数
-const ENDING_WAIT_1       = 1000; //次の演出までのインターバル
-const ENDING_GRID_TIME    = 1000; //②ステージクリア時にグリッド線を消すまでの秒数
-const ENDING_WAIT_2       = 1000; //次の演出までのインターバル
-const ENDING_PRESENT_TIME = 3000; //③ステージクリア時に現在画像をフェードアウトする秒数
+const CHARACTER_DARKNESS_PER_STAGE=0.2; //ステージクリアごとの黒化量(1なら1ステージで黒化)
+const ENDING_ZOOM_TIME    = 500; //①ステージクリア時にズームして全体を見せるまでの秒数
+const ENDING_WAIT_1       = 500; //次の演出までのインターバル
+const ENDING_GRID_TIME    = 500; //②ステージクリア時にグリッド線を消すまでの秒数
+const ENDING_WAIT_2       = 500; //次の演出までのインターバル
+const ENDING_PRESENT_TIME = 2000; //③ステージクリア時に現在画像をフェードアウトする秒数
 const ENDING_WAIT_3       = 1000; //次の演出までのインターバル（メッセージ欄にendingMessage表示）
 const ENDING_TEXT_SPEED   = 70;   //endingMessageの表示速度(ms/文字)
 // ============================
@@ -370,6 +471,7 @@ let events=[];
 let selectedPanel=null;
 let panelState=[];
 let fixedPanels=new Set();
+let flashPanels=new Map();
 
 function buildEvents(){
     if(isPanelPhase()){
@@ -398,12 +500,18 @@ function createPanelState(){
 }
 //正解パネル固定
 function updateFixedPanels(){
+    const oldFixed=new Set(fixedPanels);
     fixedPanels.clear();
-
     for(let i=0;i<panelState.length;i++){
         if(panelState[i]===i){
             fixedPanels.add(i);
+            if(!oldFixed.has(i)){
+                flashPanels.set( i, performance.now()+300 );
+            }
         }
+    }
+    if(fixedPanels.size>oldFixed.size){
+        playSE(SE_PANEL);
     }
 }
 
@@ -427,11 +535,29 @@ const bgmPlayer=new Audio();
 bgmPlayer.loop=true;
 bgmPlayer.volume=0.7;
 
+document.getElementById("title-btn-bgm").addEventListener(
+    "change", e=>{
+        soundEnabled=e.target.checked;
+        if(soundEnabled){
+            bgmPlayer.muted=false;
+            if(
+                isTitlePanelOpen() && bgmPlayer.paused
+            ){
+                playTitleBGM();
+            }
+        }else{
+            bgmPlayer.muted=true;
+        }
+    }
+);
+
 const DEFAULT_BGM="./bgm/bgm_stagebase.mp3";
 const TITLE_BGM="./bgm/bgm_title.mp3";
 const CLEAR_BGM="./bgm/bgm_clear.mp3";
 const SE_BACK="./bgm/effect_back.mp3";
 const SE_GO="./bgm/effect_go.mp3";
+const SE_PANEL="./bgm/effect_panel.mp3";
+let soundEnabled = document.getElementById("title-btn-bgm").checked;
 
 // キャラ画像読み込み
 const playerImage=new Image();
@@ -485,26 +611,24 @@ const keys={};
 let dashActive=false;
 
 function markVisited(){
-	const gx=Math.max(
-	  0,
-	  Math.min(currentStage.cols-1,Math.floor(player.x/cellW))
-	);
-	const gy=Math.max(
-	  0,
-	  Math.min(currentStage.rows-1,Math.floor(player.y/cellH))
-	);
+	const gx=Math.max( 0, Math.min(currentStage.cols-1,Math.floor(player.x/cellW)) );
+	const gy=Math.max( 0, Math.min(currentStage.rows-1,Math.floor(player.y/cellH)) );
 	visited.add(gx + "," + gy);
+}
+
+//隠しイベント処理
+function isEventVisible(e){
+    if(!e.hiddenUntilRepair){
+        return true;
+    }
+    const gx=Math.max( 0, Math.min(currentStage.cols-1,Math.floor(e.x/cellW)) );
+    const gy=Math.max( 0, Math.min(currentStage.rows-1,Math.floor(e.y/cellH)) );
+    return visited.has(gx+","+gy);
 }
 
 function isPanelPhase(){
     return(
-        currentStage.gameType==="panel"
-        ||
-        (
-            currentStage.gameType==="restoring"
-            &&
-            repairPhase===1
-        )
+        currentStage.gameType==="panel" || ( currentStage.gameType==="restoring" && repairPhase===1 )
     );
 }
 // 修復率（塗り絵・絵合わせ対応）
@@ -524,13 +648,14 @@ function paintRate(){
 
 // イベント処理
 function nearestEvent(){
-	 let best=null,d=EVENT_DISTANCE;
-	 for(const e of events){
-		  if(e.type==="goal" && !goalUnlocked) continue;
-		  const dist=Math.hypot(player.x-e.x,player.y-e.y);
-		  if(dist<d){d=dist;best=e;}
-	 }
-	 return best;
+	let best=null,d=EVENT_DISTANCE;
+	for(const e of events){
+	     if(!isEventVisible(e)) continue;
+	     if(e.type==="goal" && !goalUnlocked) continue;
+	     const dist=Math.hypot(player.x-e.x,player.y-e.y);
+	     if(dist<d){d=dist;best=e;}
+	}
+	return best;
 }
 
 function openEvent(){
@@ -697,18 +822,19 @@ function drawMiniMap(){
 
 	// イベント描画
 	for(const e of events){
-	  	if(e.type==="goal" && !goalUnlocked) continue;
-		const ex=Math.floor(
-		  e.x/(WORLD_W/currentStage.cols)
-		);
-		const ey=Math.floor(
-		  e.y/(WORLD_H/currentStage.rows)
-		);
-		miniCtx.fillStyle =
-		    e.type==="goal"
-		      ? "#0ff"
-		      : (e.read ? "#666" : "#ff0");
-		miniCtx.fillRect(ex*cellW,ey*cellH,cellW,cellH);
+	    if(!isEventVisible(e)) continue;
+	    if(e.type==="goal" && !goalUnlocked) continue;
+	    const ex=Math.floor(
+	      e.x/(WORLD_W/currentStage.cols)
+	    );
+	    const ey=Math.floor(
+	      e.y/(WORLD_H/currentStage.rows)
+	    );
+	    miniCtx.fillStyle =
+	        e.type==="goal"
+	          ? "#0ff"
+	          : (e.read ? "#666" : "#ff0");
+	    miniCtx.fillRect(ex*cellW,ey*cellH,cellW,cellH);
 	}
 
 	// プレイヤー描画（最後）
@@ -815,7 +941,11 @@ function draw(){
     if(gameMode==="stageSelect"){
         drawStageSelect();
         statusText.textContent = "ステージを選択";
-        backBtn.style.display="none";
+        backBtn.style.display="inline-block";
+		loadButtons.style.visibility="hidden";
+		miniMap.style.visibility="hidden";
+		gridPos.style.visibility="hidden";
+		gridControls.style.visibility="hidden";
         return;
     }
 	const srcW=VIEW_W/zoom, srcH=VIEW_H/zoom;
@@ -980,6 +1110,7 @@ function draw(){
 	ctx.globalAlpha=iconAlpha;
 	ctx.fillStyle="#fff";
 	for(const e of events){
+	    if(!isEventVisible(e)) continue;
 	    if(e.type==="goal" && !goalUnlocked) continue;
 	    const ex=(e.x-sx)*zoom;
 	    const ey=(e.y-sy)*zoom;
@@ -1012,7 +1143,23 @@ function draw(){
 		    const fy=Math.floor(fixedIndex/currentStage.cols);
 		    ctx.strokeStyle="#0f0";
 		    ctx.lineWidth=3;
-		    ctx.strokeRect( (fx*cellW-sx)*zoom, (fy*cellH-sy)*zoom, cellW*zoom, cellH*zoom );
+		    const inset=ctx.lineWidth/2;
+		    ctx.strokeRect( (fx*cellW-sx)*zoom + inset, (fy*cellH-sy)*zoom + inset, cellW*zoom - inset*2, cellH*zoom - inset*2 );
+		}
+		ctx.restore();
+		
+		// 正解したパネルを一瞬発光
+		ctx.save();
+		for(const [panelIndex,endTime] of flashPanels){
+		    const remain=endTime-performance.now();
+		    if(remain<=0){
+		        flashPanels.delete(panelIndex);
+		        continue;
+		    }
+		    const fx=panelIndex%currentStage.cols;
+		    const fy=Math.floor(panelIndex/currentStage.cols);
+		    ctx.fillStyle=`rgba(255,255,255,${remain/300})`;
+		    ctx.fillRect((fx*cellW-sx)*zoom,(fy*cellH-sy)*zoom,cellW*zoom,cellH*zoom);
 		}
 		ctx.restore();
 		
@@ -1036,7 +1183,7 @@ function draw(){
 	ctx.globalAlpha=iconAlpha;
 
 	if(USE_CHARACTER_IMAGE){
-	    const darkness=Math.min(1,clearedStages.size*0.2);
+	    const darkness=Math.min(1,clearedStages.size*CHARACTER_DARKNESS_PER_STAGE);
 	    ctx.filter=`brightness(${1-darkness})`;
 	    ctx.drawImage(playerImage,px-CHARACTER_SIZE/2,py-CHARACTER_SIZE/2,CHARACTER_SIZE,CHARACTER_SIZE);
 	    ctx.filter="none";
@@ -1071,6 +1218,10 @@ function draw(){
 	    goalUnlocked=true;
 	}
 
+	loadButtons.style.visibility="visible";
+	miniMap.style.visibility="visible";
+	gridPos.style.visibility="visible";
+	gridControls.style.visibility="visible";
 	drawMiniMap();
 	const gx=Math.max( 0, Math.min( currentStage.cols-1, Math.floor(player.x/cellW) ) );
 	const gy=Math.max( 0, Math.min( currentStage.rows-1, Math.floor(player.y/cellH) ) );
@@ -1142,23 +1293,16 @@ function loop(){
 	 }
 
 	if(
-	    currentStage.gameType==="restoring"
-	    &&
-	    repairPhase===1
-	    &&
-	    fixedPanels.size===panelState.length
+	    currentStage.gameType==="restoring" && repairPhase===1 && fixedPanels.size===panelState.length
 	){
 	    repairPhase=2;
-
 	    visited.clear();
 	    markVisited();
-
 	    buildEvents();
+	    playStageBGM(currentStage);
 	}
 	else if(
-	    isPanelPhase() &&
-	    !endingActive &&
-	    paintRate()>=100
+	    isPanelPhase() && !endingActive && paintRate()>=100
 	){
 	    registerStageClear();
 	    endingActive=true;
@@ -1278,10 +1422,15 @@ backBtn.onclick=()=>{
     if(isTitlePanelOpen()){
         return;
     }
+    playSE(SE_BACK);
+    if(gameMode==="stageSelect"){
+        document.getElementById("title-panel").style.display="flex";
+        playTitleBGM();
+        return;
+    }
     if(bgPast instanceof HTMLVideoElement){
         bgPast.pause();
     }
-    playSE(SE_BACK);
 	setTimeout(()=>{
 	    playTitleBGM();
 	},500);
@@ -1418,6 +1567,7 @@ document.getElementById("start-game-btn")
 .addEventListener(
     "click",
     ()=>{
+    	playSE(SE_GO);
         document.getElementById("title-panel").style.display="none";
     }
 );
