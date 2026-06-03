@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- TimeWiper - タイムワイパー・修復者 - -->
+<!-- ver20260603 -->
+<!-- Copyright (C) 2026 Factory Digital Entertainment. All rights reserved. -->
+<!-- このゲーム及び、ゲーム内の使用楽曲の著作権は全て、ファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
+<!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
+<!-- 上記の著作権者に無断で、これらの著作物を出版・放送・演奏・複製・公開に使用することを禁じます。 -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TimeWiper - イムワイパー・修復者 - powered by Picture Grid Engine Ver 0.9</title>
+<style>
+body{
+    margin:0; background:#222; font-family:sans-serif; display:flex; justify-content:center;
+    align-items:center; width:100vw;
+    height:100dvh; /* vhをやめdvhにすることでスマホ横持ち時の余白問題を調整 */
+    overflow:hidden;
+}
+#game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
+#statusBar,#message{ grid-column:1/span 3; background:#333; color:#fff; padding:6px; box-sizing:border-box; }
+#message{ text-align:center; } /* 最下部メッセージ */
+.stageTitle{ font-weight:bold; font-size:18px; }
+#left{ background:#bbb; display:flex; justify-content:center; align-items:center; position:relative; }
+#logoBox{ position:absolute; top:12px; left:50%; transform:translateX(-50%); }
+#gameLogo{ width:130px; height:auto; }
+#timeBox{ position:absolute; top:90px; left:50%; transform:translateX(-50%); width:130px;
+	text-align:center; font-size:14px; font-weight:bold; line-height:1.5; color:#222;
+}
+#right{ background:#bbb; display:flex; justify-content:flex-start; align-items:center; flex-direction:column; gap:6px; }
+#filePicker{ width:130px; }
+#pad{ display:grid; grid-template-columns:repeat(3,40px); gap:4px; margin-top:60px; }
+#canvasWrap{position:relative;width:574px;height:384px}
+#cv{ position:absolute; left:0; top:0; }
+#miniMap{ border:1px solid #333; background:#000; }
+#gridPos{ width:130px; font-size:10px; font-weight:bold; text-align:center; line-height:1.4; }
+#gridControls{ display:flex; gap:4px; align-items:center; }
+#abButtons{ display:flex; justify-content:center; gap:16px; margin-top:40px; }
+#btnA{position:relative;top:-4px;background:#d33;}
+#btnB{position:relative;top:4px;background:#36c;}
+#btnA,#btnB{
+    width:48px; height:48px; border-radius:50%; border:2px solid #fff;
+    color:#fff; font-size:28px; font-weight:bold;
+}
+button{
+    border:1px solid #fff; border-radius:8px;
+    background:#555; color:#fff;
+    font-weight:bold;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.3),
+        0 2px 4px rgba(0,0,0,.4);
+    cursor:pointer;
+}
+button:active{
+    transform:translateY(2px);
+    box-shadow:
+        inset 0 2px 4px rgba(0,0,0,.5);
+}
+#pad button{ font-size:28px; display:flex; justify-content:center; align-items:center; }
+.pad-horizontal{ height:40px; }
+#padCenter{ visibility:hidden; }
+#dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;background:#111;color:#fff;border:2px solid #fff;padding:12px;width:380px}
+#loadButtons{ margin-top:6px; text-align:center; display:flex; flex-direction:column; gap:4px; }
+/* タッチ要求画面 */
+#press-panel{ position:fixed; inset:0; z-index:1002; background:rgba(0,0,0,.5); color:#fff; display:flex; justify-content:center; align-items:center;}
+#press-text{ text-align:center; font-size:72px; font-weight:bold; line-height:1.6;animation:pressBlink 2.5s infinite;}
+@keyframes pressBlink{
+    0%{ opacity:1; }
+    50%{ opacity:0.2; }
+    100%{ opacity:1; }
+}
+/* タイトル画面 */
+#title-panel{ position:fixed; inset:0; z-index:1001; background:rgba(0,0,0,.85); display:none; flex-direction:column; 
+	justify-content:center; align-items:center; gap:24px;}
+#title-image{  width:700px; height:auto;}
+.modal-button{ padding:12px 32px; font-size:20px; font-weight:bold;}
+#start-game-btn{padding:18px 48px;font-size:32px;}
+#title-bgm-ctrl{ display:flex; align-items:center; gap:8px; color:#fff;}
+.switch{ position:relative; display:inline-block; width:52px; height:28px;}
+.switch input{ display:none;}
+.slider{ position:absolute; inset:0; background:#666; border-radius:28px;}
+.slider::before{ content:""; position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s;}
+.switch input:checked + .slider::before{ transform:translateX(24px);}
+</style>
+</head>
+<body>
+
+<!-- ステージデータ -->
+<script id="stageData" type="application/json">
+[
+	{
+		"title":"秘密都市",
+		"gameType":"paint",
+		"bgm":"./bgm/bgm_s1.mp3",
+		"thumb":"./img/thumb01.jpg",
+		"present":"./img/1st_present.jpg",
+		"past":"./img/1st_past.mp4",
+		"cols":16,
+		"rows":12,
+		"startX":1000,
+		"startY":669,
+		"zoom":1,
+		"clearRate":60,
+		"goalCondition":"修復率60%以上でゴール解放",
+		"endingMessage":"世界は、本来の姿を取り戻した。",
+		"events":[
+		    {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
+		    {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
+		    {"id":"stone3","x":1400,"y":800,"hiddenUntilRepair":true,"title":"石碑③","text":"落石注意！"},
+		    {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+		]
+	},
+	{
+		"title":"温泉郷",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":100,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"庭園",
+		"gameType":"restoring",
+		"bgm":"./bgm/bgm_s3.mp3",
+		"bgm2":"./bgm/bgm_s4.mp3",
+		"thumb":"./img/thumb03.jpg",
+		"present":"./img/3rd_present.jpg",
+		"past":"./img/3rd_past.jpg",
+		"cols":3,
+		"rows":3,
+		"startX":500,
+		"startY":400,
+		"zoom":0.285,
+		"clearRate":95,
+		"goalCondition":"接合完了後、修復率95%以上でゴール解放",
+		"endingMessage":"庭園は、本来の姿を取り戻した。",
+		"events":[
+			{"id":"stone1","x":500,"y":500,"title":"テスト石碑","text":"第3ステージです。"},
+			{"id":"stone2","x":800,"y":500,"hiddenUntilRepair":true,"title":"テスト石碑","text":"隠しイベントです。"},
+			{"id":"goal","x":1200,"y":700,"type":"goal","title":"ゴール","text":"クリア！"}
+		]
+	},
+
+	{
+		"title":"京panel",
+		"gameType":"panel",
+		"bgm":"./bgm/bgm_s3.mp3",
+		"thumb":"./img/thumb04.png",
+		"present":"./img/s04_present.png",
+		"past":"./img/s04_past.png",
+		"cols":7,
+		"rows":5,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":100,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"京paint",
+		"gameType":"paint",
+		"bgm":"./bgm/bgm_s3.mp3",
+		"thumb":"./img/thumb05.png",
+		"present":"./img/s04_present.png",
+		"past":"./img/s04_past.png",
+		"cols":16,
+		"rows":12,
+		"startX":1000,
+		"startY":669,
+		"zoom":0.295,
+		"clearRate":70,
+		"goalCondition":"修復率70%以上でゴール解放",
+		"endingMessage":"世界は、本来の姿を取り戻した。",
+		"events":[
+		    {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
+		    {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
+		    {"id":"stone3","x":1400,"y":800,"hiddenUntilRepair":true,"title":"石碑③","text":"落石注意！"},
+		    {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+		]
+	},
+	{
+		"title":"仮6",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮7",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮8",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮9",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮10",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮11",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮12",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮13",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	}
+
+]
+</script>
+
+<div id="press-panel">
+    <div id="press-text">
+        Please Touch<br>or<br>Press Any Key
+    </div>
+</div><!-- press-panel終了 -->
+
+<div id="title-panel">
+    <img src="./img/title.png" alt="" id="title-image">
+    <button id="start-game-btn" class="modal-button primary">ゲーム開始</button>
+    <div id="title-bgm-ctrl">
+        <span class="label-text">♪</span>
+        <label class="switch">
+            <input type="checkbox" id="title-btn-bgm" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+    <small style="color:#fff;">©2026 Factory Digital Entertainment</small>
+</div><!-- title-panel終了 -->
+
+<div id="game">
+<div id="statusBar">
+    <span id="statusText"></span>
+    <button id="backBtn" style="float:right;display:none;">戻る</button>
+</div>
+
+<div id="left">
+<div id="logoBox">
+    <img id="gameLogo" src="./img/logo.png" alt="TimeWiper">
+</div>
+<div id="timeBox">
+    <div id="bestText">BEST --:--</div>
+    <div id="timeText">TIME --:--</div>
+</div>
+<div id="pad">
+	<button class="pad-horizontal" data-dx="-1" data-dy="-1">↖</button><button class="pad-horizontal" data-dx="0" data-dy="-1">↑</button><button class="pad-horizontal" data-dx="1" data-dy="-1">↗</button>
+	<button class="pad-horizontal" data-dx="-1" data-dy="0">←</button><button id="padCenter" disabled></button><button class="pad-horizontal" data-dx="1" data-dy="0">→</button>
+	<button class="pad-horizontal" data-dx="-1" data-dy="1">↙</button><button class="pad-horizontal" data-dx="0" data-dy="1">↓</button><button class="pad-horizontal" data-dx="1" data-dy="1">↘</button>
+</div>
+</div><!-- left終了 -->
+
+<div id="canvasWrap">
+<canvas id="cv" width="574" height="384"></canvas>
+<div id="dialog"><h3 id="dlgTitle"></h3><div id="dlgText"></div></div>
+</div><!-- canvasWrap終了 -->
+
+<div id="right">
+	<div id="loadButtons">
+		<button id="loadPastBtn">過去LOAD</button>
+		<button id="loadPresentBtn">現在LOAD</button>
+	</div>
+	<!-- mp4動画このゲームについてはAndroid版Firefox非対応 -->
+	<input id="filePicker" type="file" accept=".png,.jpg,.jpeg,.gif,.mp4,.webm" style="display:none">
+	<canvas id="miniMap" width="130" height="60"></canvas>
+	<div id="gridPos">x0,y0</div><!-- グリッド上の座標 -->
+	<div id="gridControls">
+		<button id="zoomOut">－</button>
+		<button id="gridBtn">GRID</button>
+		<button id="zoomIn">＋</button>
+	</div>
+	<div id="abButtons">
+		<button id="btnB">B</button>
+		<button id="btnA">A</button>
+	</div>
+</div><!-- right終了 -->
+
+<div id="message">画像を読み込んで開始</div>
+</div><!-- game終了 -->
+
+<script>
+let stages;
+try{
+    stages=JSON.parse(
+        document.getElementById("stageData").textContent
+    );
+}catch(err){
+    console.error(err);
+    alert(
+        "stageData のJSONにエラーがあります。\n\n"+
+        err.message
+    );
+    throw err;
+}
+let currentStage=null;
+let currentStageIndex=0;
+
+//BGM切替関数
+function playStageBGM(stageData){
+    let bgmPath;
+    if(
+        stageData.gameType==="restoring" && repairPhase===2
+    ){
+        bgmPath = stageData.bgm2 || stageData.bgm || DEFAULT_BGM;
+    }else{
+        bgmPath = stageData.bgm ||  DEFAULT_BGM;
+    }
+    if(bgmPlayer.src.endsWith(bgmPath)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=bgmPath;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function isTitlePanelOpen(){
+    return document.getElementById("title-panel").style.display==="flex";
+}
+function showTitlePanel(){
+    if(pressOpened){
+        return;
+    }
+    pressOpened=true;
+    document.getElementById("press-panel").style.display="none";
+    document.getElementById("title-panel").style.display="flex";
+    playTitleBGM();
+}
+function playTitleBGM(){
+    if(bgmPlayer.src.endsWith(TITLE_BGM)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=TITLE_BGM;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function playClearBGM(){
+    if(bgmPlayer.src.endsWith(CLEAR_BGM)){
+        return;
+    }
+    bgmPlayer.pause();
+    bgmPlayer.src=CLEAR_BGM;
+    bgmPlayer.load();
+    bgmPlayer.play().catch(()=>{});
+}
+function playSE(src){
+    if(!soundEnabled){
+        return;
+    }
+    const se=new Audio(src);
+    se.volume=0.8;
+    se.play().catch(()=>{});
+}
+
+// 画像切替専用関数
+function loadStageMedia(stageData){
+    if(bgPast instanceof HTMLVideoElement){
+        bgPast.pause();
+    }
+    bgPresent=new Image();
+    bgPresent.onload=()=>{
+        presentCtx.clearRect( 0,0,WORLD_W,WORLD_H );
+        presentCtx.drawImage( bgPresent,0,0,WORLD_W,WORLD_H );
+    };
+    bgPresent.src=stageData.present;
+    if(/\.(mp4|webm)$/i.test(stageData.past)){
+        bgPast=document.createElement("video");
+        bgPast.src=stageData.past;
+        bgPast.loop=true;
+        bgPast.muted=true;
+        bgPast.playsInline=true;
+        bgPast.preload="auto";
+        bgPast.addEventListener(
+            "canplay",
+            ()=>{
+                bgPast.play().catch(()=>{});
+            }
+        );
+    }else{
+        bgPast=new Image();
+        bgPast.src=stageData.past;
+    }
+}
+
+//クリアしたステージ番号の把握
+function registerStageClear(){
+    clearedStages.add(currentStageIndex);
+}
+
+function updateBestTime(){
+    const time=Math.floor(currentPlayTime);
+    const best=bestTimes[currentStageIndex];
+    if(
+        best===undefined || time < best
+    ){
+        bestTimes[currentStageIndex]=time;
+    }
+}
+
+function loadStage(stageData){
+	console.log("loadStage",stageData);
+	loadStageMedia(stageData);
+	playStageBGM(stageData);
+	stageStartTime=performance.now();
+	currentPlayTime=0;
+    currentStage=stageData;
+    player.x=currentStage.startX;
+    player.y=currentStage.startY;
+    zoom=currentStage.zoom;
+    cellW=WORLD_W/currentStage.cols;
+    cellH=WORLD_H/currentStage.rows;
+	goalUnlocked=false;
+	repairPhase=1;
+	visited.clear();
+	
+	// エンディング状態を初期化
+	endingActive=false;
+	endingPhase=0;
+	endingPhaseStart=0;
+
+	gridAlpha=0.35;
+	iconAlpha=1;
+	presentAlpha=1;
+	endingTextIndex=0;
+
+	message.textContent="";
+
+	buildEvents();
+	//ステージ開始時に正解パネルを検出
+	if(isPanelPhase()){
+	    createPanelState();
+	    updateFixedPanels();
+	    console.log("panelState",panelState);
+	}
+	markVisited();
+}
+let gameMode="stageSelect";
+let pressOpened=false;
+// ゲーム基本情報
+const GAME_TITLE="TimeWiper - 修復者 -";
+const GAME_REPAIRRATE="修復率";
+const GAME_JOINRATE="接合率";
+// ステージグリッド数
+const STAGE_SELECT_COLS=2;
+const STAGE_SELECT_ROWS=2;
+// ステージサムネイルのサイズとページ送り矢印も含めたY位置
+const gridW=470;
+const gridH=320;
+const gridStartY=20;
+// 画像表示枠と、読み込み想定画像サイズの絶妙な固定値
+const VIEW_W=574,
+      VIEW_H=384,
+      WORLD_W=2000,
+      WORLD_H=1338;
+// ===== ゲームバランス設定 =====
+const PLAYER_SPEED = 8; //通常の移動速度
+const DASH_MULTIPLIER = 4; //Bダッシュの倍数
+const RESTORE_BRUSH_SIZE = 130; //修復筆の太さ
+const EVENT_DISTANCE = 80; //イベント当たり判定距離
+const USE_CHARACTER_IMAGE=true; //キャラ画像ON/OFF
+const CHARACTER_SIZE=28; //キャラ画像サイズ
+const CHARACTER_DARKNESS_PER_STAGE=0.2; //ステージクリアごとの黒化量(1なら1ステージで黒化)
+const ENDING_ZOOM_TIME    = 500; //①ステージクリア時にズームして全体を見せるまでの秒数
+const ENDING_WAIT_1       = 500; //次の演出までのインターバル
+const ENDING_GRID_TIME    = 500; //②ステージクリア時にグリッド線を消すまでの秒数
+const ENDING_WAIT_2       = 500; //次の演出までのインターバル
+const ENDING_PRESENT_TIME = 2000; //③ステージクリア時に現在画像をフェードアウトする秒数
+const ENDING_WAIT_3       = 1000; //次の演出までのインターバル（メッセージ欄にendingMessage表示）
+const ENDING_TEXT_SPEED   = 70;   //endingMessageの表示速度(ms/文字)
+// ============================
+
+const clearedStages=new Set(); //ステージクリアセット
+let stageStartTime=0;
+let currentPlayTime=0;
+const bestTimes={};
+
+//URLセーブ用配列格納例
+//{
+//    c:[0,2,4],
+//    b:{
+//        0:95,
+//        2:123,
+//        4:87
+//    }
+//}
+function buildSaveData(){
+    return{
+        c:[...clearedStages].sort((a,b)=>a-b),
+        b:{...bestTimes}
+    };
+}
+//戻り値は eyJjIjpbMCwyLDRdLCJiIjp7IjAiOjk1LCIyIjoxMjMsIjQiOjg3fX0= のようなBase64文字列になる。
+function encodeSaveData(){
+    return btoa( JSON.stringify( buildSaveData() ) );
+}
+function updateSaveURL(){
+    const url = location.pathname + "?save=" + encodeURIComponent( encodeSaveData() );
+    history.replaceState( null, "", url );
+}
+function decodeSaveData(save){
+    return JSON.parse( atob(save) );
+}
+function loadSaveFromURL(){
+    const save=new URLSearchParams(location.search).get("save");
+    if(!save)return;
+    //異常URLパラメータでもゲーム続行可能
+    try{
+        const data=decodeSaveData(save);
+        clearedStages.clear();
+        data.c?.forEach(i=>clearedStages.add(i));
+        Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
+        Object.assign(bestTimes,data.b||{});
+    }catch(e){}
+}
+
+const player={ x:0, y:0 };
+const visited=new Set();
+let events=[];
+let selectedPanel=null;
+let panelState=[];
+let fixedPanels=new Set();
+let flashPanels=new Map();
+
+function buildEvents(){
+    if(isPanelPhase()){
+        events=[]; //panelモードのeventsを無効化
+        return;
+    }
+    events=currentStage.events.map(
+        e=>({...e,read:false})
+    );
+}
+
+//パネルシャッフル
+function createPanelState(){
+    const count=currentStage.cols*currentStage.rows;
+    panelState=[];
+    for(let i=0;i<count;i++){
+        panelState.push(i);
+    }
+    for(let i=count-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [panelState[i],panelState[j]]=
+        [panelState[j],panelState[i]];
+    }
+    fixedPanels.clear();
+    selectedPanel=null;
+}
+//正解パネル固定
+function updateFixedPanels(){
+    const oldFixed=new Set(fixedPanels);
+    fixedPanels.clear();
+    for(let i=0;i<panelState.length;i++){
+        if(panelState[i]===i){
+            fixedPanels.add(i);
+            if(!oldFixed.has(i)){
+                flashPanels.set( i, performance.now()+300 );
+            }
+        }
+    }
+    if(fixedPanels.size>oldFixed.size){
+        playSE(SE_PANEL);
+    }
+}
+
+const presentCanvas=document.createElement("canvas");
+presentCanvas.width=WORLD_W;
+presentCanvas.height=WORLD_H;
+const presentCtx=presentCanvas.getContext("2d");
+
+const ctx=cv.getContext("2d");
+const miniCtx=
+ document.getElementById("miniMap")
+ .getContext("2d");
+
+let loadTarget = "present";
+
+let bgPresent;
+let bgPast;
+
+//BGM管理
+const bgmPlayer=new Audio();
+bgmPlayer.loop=true;
+bgmPlayer.volume=0.7;
+
+document.getElementById("title-btn-bgm").addEventListener(
+    "change", e=>{
+        soundEnabled=e.target.checked;
+        if(soundEnabled){
+            bgmPlayer.muted=false;
+            if(
+                isTitlePanelOpen() && bgmPlayer.paused
+            ){
+                playTitleBGM();
+            }
+        }else{
+            bgmPlayer.muted=true;
+        }
+    }
+);
+
+const DEFAULT_BGM="./bgm/bgm_stagebase.mp3";
+const TITLE_BGM="./bgm/bgm_title.mp3";
+const CLEAR_BGM="./bgm/bgm_clear.mp3";
+const SE_BACK="./bgm/effect_back.mp3";
+const SE_GO="./bgm/effect_go.mp3";
+const SE_PANEL="./bgm/effect_panel.mp3";
+let soundEnabled = document.getElementById("title-btn-bgm").checked;
+
+// キャラ画像読み込み
+const playerImage=new Image();
+playerImage.src="./img/chara_white.png";
+
+// createObjectURL解放用
+let currentPastObjectURL = null;
+let currentPresentObjectURL = null;
+
+let zoom=1;
+let cellW=0;
+let cellH=0;
+
+// ステージクリア時関連
+let endingActive=false;
+let endingPhase=0;
+let endingPhaseStart=0;
+let gridAlpha=0.35;
+let iconAlpha=1;
+let presentAlpha=1;
+let endingTextIndex=0;
+// ステージ選択関連
+let stageCursorX=0;
+let stageCursorY=0;
+let stagePage=0;
+// ページ送りボタン押下演出
+let leftArrowFlashUntil=0;
+let rightArrowFlashUntil=0;
+
+stages.forEach(stage=>{
+    stage.image=new Image();
+    stage.image.src=stage.thumb;
+});
+// ステージカーソル移動関数
+function moveStageCursor(dx,dy){
+    const pageSize = STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+    const maxPage = Math.max(0,Math.ceil(stages.length/pageSize)-1);
+    if(dx>0 && stageCursorX===STAGE_SELECT_COLS-1){
+        if(stagePage<maxPage){
+            stagePage++;
+            stageCursorX=0;
+            clampStageCursorToExisting();
+        }
+        return;
+    }
+    if(dx<0 && stageCursorX===0){
+        if(stagePage>0){
+            stagePage--;
+            stageCursorX=STAGE_SELECT_COLS-1;
+            clampStageCursorToExisting();
+        }
+        return;
+    }
+	const oldX=stageCursorX;
+	const oldY=stageCursorY;
+	stageCursorX=Math.max( 0, Math.min(STAGE_SELECT_COLS-1,stageCursorX+dx)  );
+	stageCursorY=Math.max( 0, Math.min(STAGE_SELECT_ROWS-1,stageCursorY+dy) );
+	const pageOffset=stagePage*STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	const index=pageOffset+stageCursorY*STAGE_SELECT_COLS+stageCursorX;
+	if(!stages[index]){
+	    stageCursorX=oldX;
+	    stageCursorY=oldY;
+	}
+}
+function clampStageCursorToExisting(){
+    const pageSize = STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+    const pageOffset = stagePage * pageSize;
+    let index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    while(
+        index >= stages.length && stageCursorX > 0
+    ){
+        stageCursorX--;
+        index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    }
+}
+
+const MIN_ZOOM = Math.min(
+  VIEW_W / WORLD_W,
+  VIEW_H / WORLD_H
+);
+
+let showGrid=true;
+let goalUnlocked=false;
+let repairPhase=1;
+let padDX=0,padDY=0;
+let dialogOpen=false;
+const keys={};
+
+function formatTime(seconds){
+    const m=Math.floor(seconds/60);
+    const s=Math.floor(seconds%60);
+    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+// Bダッシュを使用可能にする
+let dashActive=false;
+
+function markVisited(){
+	const gx=Math.max( 0, Math.min(currentStage.cols-1,Math.floor(player.x/cellW)) );
+	const gy=Math.max( 0, Math.min(currentStage.rows-1,Math.floor(player.y/cellH)) );
+	visited.add(gx + "," + gy);
+}
+
+//隠しイベント処理
+function isEventVisible(e){
+    if(!e.hiddenUntilRepair){
+        return true;
+    }
+    const gx=Math.max( 0, Math.min(currentStage.cols-1,Math.floor(e.x/cellW)) );
+    const gy=Math.max( 0, Math.min(currentStage.rows-1,Math.floor(e.y/cellH)) );
+    return visited.has(gx+","+gy);
+}
+
+function isPanelPhase(){
+    return(
+        currentStage.gameType==="panel" || ( currentStage.gameType==="restoring" && repairPhase===1 )
+    );
+}
+// 修復率（塗り絵・絵合わせ対応）
+function paintRate(){
+    const total=currentStage.cols*currentStage.rows;
+	if(currentStage.gameType==="restoring"){
+	    if(repairPhase===1){
+	        return fixedPanels.size/total*100;
+	    }
+	    return visited.size/total*100;
+	}
+    if(isPanelPhase()){
+        return fixedPanels.size/total*100;
+    }
+    return visited.size/total*100;
+}
+
+// イベント処理
+function nearestEvent(){
+	let best=null,d=EVENT_DISTANCE;
+	for(const e of events){
+	     if(!isEventVisible(e)) continue;
+	     if(e.type==="goal" && !goalUnlocked) continue;
+	     const dist=Math.hypot(player.x-e.x,player.y-e.y);
+	     if(dist<d){d=dist;best=e;}
+	}
+	return best;
+}
+
+function openEvent(){
+	 const e=nearestEvent();
+	 if(!e)return;
+	 playSE(SE_GO);
+	 e.read=true;
+	 dlgTitle.textContent=e.title;
+	 dlgText.textContent=e.text;
+	 dialog.style.display="block";
+	 dialogOpen=true;
+}
+function closeEvent(){
+    dialog.style.display="none";
+    dialogOpen=false;
+    const e=nearestEvent();
+    if(
+        e &&
+        e.type==="goal" &&
+        goalUnlocked &&
+        !endingActive
+    ){
+    	registerStageClear();
+    	updateBestTime();
+    	updateSaveURL();
+        endingActive=true;
+        endingPhase=1;
+        endingPhaseStart=performance.now();
+    }
+}
+
+function selectPanel(){
+    const gx=Math.max(0,Math.min(currentStage.cols-1,Math.floor(player.x/cellW)));
+    const gy=Math.max(0,Math.min(currentStage.rows-1,Math.floor(player.y/cellH)));
+    const panelIndex=gy*currentStage.cols+gx;
+    selectPanelByIndex(panelIndex);
+}
+
+function selectPanelByIndex(panelIndex){
+    if(selectedPanel===null){
+        if(fixedPanels.has(panelIndex)){
+            return;
+        }
+        selectedPanel=panelIndex;
+        return;
+    }
+    if(selectedPanel===panelIndex){
+        selectedPanel=null;
+        return;
+    }
+    if(fixedPanels.has(panelIndex)){
+        selectedPanel=null;
+        return;
+    }
+    [panelState[selectedPanel],panelState[panelIndex]]=
+    [panelState[panelIndex],panelState[selectedPanel]];
+    updateFixedPanels();
+    selectedPanel=null;
+}
+
+dialog.addEventListener("click",()=>{
+    if(dialogOpen){
+        closeEvent();
+    }
+});
+
+cv.addEventListener("pointerdown",e=>{
+	if(gameMode==="stageSelect"){
+	    const rect=cv.getBoundingClientRect();
+	    const mx=(e.clientX-rect.left)*(VIEW_W/rect.width);
+	    const my=(e.clientY-rect.top)*(VIEW_H/rect.height);
+	    const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	    const maxPage=Math.max(0,Math.ceil(stages.length/pageSize)-1);
+	    if(my>=170 && my<=250){
+	        if(mx>=20 && mx<=90 && stagePage>0){
+	            playSE(SE_GO);
+	            leftArrowFlashUntil=performance.now()+100;
+	            stagePage--;
+	            return;
+	        }
+	        if(mx>=VIEW_W-90 && mx<=VIEW_W-20 && stagePage<maxPage){
+	            playSE(SE_GO);
+	            rightArrowFlashUntil=performance.now()+100;
+	            stagePage++;
+	            return;
+	        }
+	    }
+	    const startX=(VIEW_W-gridW)/2;
+	    const startY=gridStartY;
+	    const thumbW=gridW/STAGE_SELECT_COLS;
+	    const thumbH=gridH/STAGE_SELECT_ROWS;
+	    if(
+	        mx>=startX &&
+	        mx<startX+gridW &&
+	        my>=startY &&
+	        my<startY+gridH
+	    ){
+	        const gx=Math.floor((mx-startX)/thumbW);
+	        const gy=Math.floor((my-startY)/thumbH);
+
+	        const pageOffset=stagePage*pageSize;
+	        const index=pageOffset+gy*STAGE_SELECT_COLS+gx;
+
+	        const stageData=stages[index];
+	        if(stageData){
+	            playSE(SE_GO);
+	            currentStageIndex=index;
+	            loadStage(stageData);
+	            gameMode="game";
+	        }
+	    }
+	    return;
+	}
+    if(gameMode!=="game") return;
+    if(!isPanelPhase()) return;
+    if(dialogOpen) return;
+
+	const rect=cv.getBoundingClientRect();
+	const mx=(e.clientX-rect.left)*(VIEW_W/rect.width);
+	const my=(e.clientY-rect.top)*(VIEW_H/rect.height);
+    const srcW=VIEW_W/zoom;
+    const srcH=VIEW_H/zoom;
+    let sx,sy;
+    if(srcW>=WORLD_W){
+        sx=-(srcW-WORLD_W)/2;
+    }else{
+        sx=Math.max(0,Math.min(WORLD_W-srcW,player.x-srcW/2));
+    }
+    if(srcH>=WORLD_H){
+        sy=-(srcH-WORLD_H)/2;
+    }else{
+        sy=Math.max(0,Math.min(WORLD_H-srcH,player.y-srcH/2));
+    }
+    const worldX=sx+(mx/zoom);
+    const worldY=sy+(my/zoom);
+    const gx=Math.max( 0,Math.min(currentStage.cols-1,Math.floor(worldX/cellW) ) );
+    const gy=Math.max( 0,Math.min(currentStage.rows-1,Math.floor(worldY/cellH) ) );
+    const panelIndex=gy*currentStage.cols+gx;
+    selectPanelByIndex(panelIndex);
+});
+
+function drawStageSelect(){
+    ctx.fillStyle="#111";
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    ctx.textAlign="center";
+    ctx.fillStyle="#fff";
+    ctx.font="32px sans-serif";
+    // ctx.fillText( GAME_TITLE, VIEW_W/2, 40 );
+    const startX=(VIEW_W-gridW)/2;
+    const startY=gridStartY;
+    const cellW=gridW/STAGE_SELECT_COLS;
+    const cellH=gridH/STAGE_SELECT_ROWS;
+    for(let y=0;y<STAGE_SELECT_ROWS;y++){
+        for(let x=0;x<STAGE_SELECT_COLS;x++){
+            const px=startX+x*cellW;
+            const py=startY+y*cellH;
+            const selected = x === stageCursorX && y === stageCursorY;
+			if(selected){
+			    ctx.lineWidth = 4;
+			    ctx.strokeStyle = "#ff0";
+			    ctx.strokeRect(px,py,cellW,cellH);
+			}
+			const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+			const index = pageOffset + y * STAGE_SELECT_COLS + x;
+
+			const stageData = stages[index];
+			if(stageData){
+			    if(
+			        stageData.image.complete && stageData.image.naturalWidth>0
+			    ){
+			        ctx.drawImage( stageData.image, px+8, py+8, cellW-16, cellH-32 );
+			    }
+			    ctx.fillStyle="#fff";
+			    ctx.font="16px sans-serif";
+			    ctx.fillText( stageData.title, px+cellW/2, py+cellH-8 );
+			    if(clearedStages.has(index)){
+				    ctx.font="28px sans-serif";
+				    ctx.fillStyle="#0f0";
+				    ctx.fillText("✓",px+cellW-20,py+30);
+				}
+			}
+        }
+    }
+	const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	const maxPage=Math.max(0,Math.ceil(stages.length/pageSize)-1);
+	const now=performance.now();
+	ctx.font="36px sans-serif";
+	const arrowY=startY+gridH/2+12;
+	if(stagePage>0){
+	    ctx.font=now<leftArrowFlashUntil ? "28px sans-serif" : "36px sans-serif";
+	    ctx.fillText("◀",25,arrowY);
+	}
+	if(stagePage<maxPage){
+	    ctx.font=now<rightArrowFlashUntil ? "28px sans-serif" : "36px sans-serif";
+	    ctx.fillText("▶",VIEW_W-25,arrowY);
+	}
+	ctx.textAlign="left";
+}
+
+function drawMiniMap(){
+	 miniCtx.fillStyle="#000";
+	 miniCtx.fillRect(0,0,miniCtx.canvas.width,miniCtx.canvas.height);
+	 const cellW=
+	   miniCtx.canvas.width/currentStage.cols
+	 const cellH=
+	   miniCtx.canvas.height/currentStage.rows;
+	 visited.forEach(key=>{
+	   const [cx,cy]=
+	     key.split(",").map(Number);
+	   miniCtx.fillStyle="#0f0";
+	   miniCtx.fillRect(cx*cellW,cy*cellH,cellW,cellH);
+	 });
+
+	// イベント描画
+	for(const e of events){
+	    if(!isEventVisible(e)) continue;
+	    if(e.type==="goal" && !goalUnlocked) continue;
+	    const ex=Math.floor(
+	      e.x/(WORLD_W/currentStage.cols)
+	    );
+	    const ey=Math.floor(
+	      e.y/(WORLD_H/currentStage.rows)
+	    );
+	    miniCtx.fillStyle =
+	        e.type==="goal"
+	          ? "#0ff"
+	          : (e.read ? "#666" : "#ff0");
+	    miniCtx.fillRect(ex*cellW,ey*cellH,cellW,cellH);
+	}
+
+	// プレイヤー描画（最後）
+	const px=Math.max(
+	  0,
+	  Math.min(
+	    currentStage.cols-1,
+	    Math.floor(player.x/(WORLD_W/currentStage.cols))
+	  )
+	);
+
+	const py=Math.max(
+	  0,
+	  Math.min(
+	    currentStage.rows-1,
+	    Math.floor(player.y/(WORLD_H/currentStage.rows))
+	  )
+	);
+	miniCtx.fillStyle="#f00";
+	miniCtx.fillRect(px*cellW,py*cellH,cellW,cellH);
+
+	// 現在の視界枠
+	const srcW = VIEW_W / zoom;
+	const srcH = VIEW_H / zoom;
+	let sx = Math.max( 0, Math.min( WORLD_W - srcW, player.x - srcW/2 ) );
+	let sy = Math.max( 0, Math.min( WORLD_H - srcH, player.y - srcH/2 ) );
+	miniCtx.strokeStyle="#fff";
+	miniCtx.lineWidth=1;
+	miniCtx.strokeRect(
+	  sx/WORLD_W * miniCtx.canvas.width,
+	  sy/WORLD_H * miniCtx.canvas.height,
+	  srcW/WORLD_W * miniCtx.canvas.width,
+	  srcH/WORLD_H * miniCtx.canvas.height
+	);
+}
+
+function updateEnding(){
+    if(!endingActive)return;
+    const now=performance.now();
+    const elapsed=now-endingPhaseStart;
+    if(endingPhase===1){
+        const t=Math.min(1,elapsed/ENDING_ZOOM_TIME);
+        zoom = zoom + (MIN_ZOOM-zoom) * 0.05;
+        if(t>=1){
+            zoom=MIN_ZOOM;
+            endingPhase=2;
+            endingPhaseStart=now;
+        }
+    }
+    else if(endingPhase===2){
+        if(elapsed>=ENDING_WAIT_1){
+            endingPhase=3;
+            endingPhaseStart=now;
+        }
+    }
+    else if(endingPhase===3){
+        const t=Math.min(1,elapsed/ENDING_GRID_TIME);
+        gridAlpha=0.35*(1-t);
+        iconAlpha=1-t;
+        if(t>=1){
+            gridAlpha=0;
+            iconAlpha=0;
+            endingPhase=4;
+            endingPhaseStart=now;
+        }
+    }
+    else if(endingPhase===4){
+        if(elapsed>=ENDING_WAIT_2){
+        	playClearBGM();
+            endingPhase=5;
+            endingPhaseStart=now;
+        }
+    }
+    else if(endingPhase===5){
+        const t=Math.min(1,elapsed/ENDING_PRESENT_TIME);
+        presentAlpha=1-t;
+        if(t>=1){
+            presentAlpha=0;
+            endingPhase=6;
+            endingPhaseStart=now;
+        }
+    }
+    else if(endingPhase===6){
+	    if(elapsed>=ENDING_WAIT_3){
+	        endingTextIndex=0;
+	        message.textContent="";
+	        endingPhase=7;
+	        endingPhaseStart=now;
+	    }
+	}
+	else if(endingPhase===7){
+	    const text = currentStage.endingMessage || "世界は、本来の姿を取り戻した。";
+	    const count= 1 + Math.floor( elapsed / ENDING_TEXT_SPEED );
+	    endingTextIndex=Math.min( text.length, count );
+	    message.textContent=
+	        text.slice(0,endingTextIndex);
+	    if(endingTextIndex>=text.length){
+	        endingPhase=8;
+	    }
+	}
+}
+
+function draw(){
+	if(gameMode==="stageSelect"){
+	    drawStageSelect();
+	    statusText.textContent = "ステージを選択";
+	    message.textContent = "A : START";
+	    backBtn.style.display="inline-block";
+		loadButtons.style.visibility="hidden";
+		miniMap.style.visibility="hidden";
+		gridPos.style.visibility="hidden";
+		gridControls.style.visibility="hidden";
+
+		const pageOffset=stagePage*STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+		const index=pageOffset+stageCursorY*STAGE_SELECT_COLS+stageCursorX;
+		const bestTime=bestTimes[index];
+
+		bestText.textContent=
+		    bestTime===undefined
+		        ? "BEST --:--"
+		        : "BEST "+formatTime(bestTime);
+
+		timeText.style.display="none";
+
+	    return;
+	}
+	const srcW=VIEW_W/zoom, srcH=VIEW_H/zoom;
+	let sx,sy;
+	if(srcW >= WORLD_W){
+	   sx = -(srcW - WORLD_W)/2;
+	}else{
+	   sx = Math.max( 0, Math.min( WORLD_W-srcW, player.x-srcW/2 ) );
+	}
+	if(srcH >= WORLD_H){
+	   sy = -(srcH - WORLD_H)/2;
+	}else{
+	   sy = Math.max( 0, Math.min( WORLD_H-srcH, player.y-srcH/2 ) );
+	}
+	ctx.clearRect(0,0,VIEW_W,VIEW_H);
+	//スマホFirefox MP4マゼンダ実験
+	//ctx.fillStyle="magenta";
+	//ctx.fillRect(0,0,VIEW_W,VIEW_H);
+
+	//現在画像
+	const source = bgPresent;
+	let mediaW = 0;
+	let mediaH = 0;
+	let canDraw = false;
+	if(source instanceof HTMLImageElement){
+		canDraw = source.complete && source.naturalWidth > 0;
+		mediaW = source.width;
+		mediaH = source.height;
+	}
+	if(source instanceof HTMLVideoElement){
+		canDraw = source.readyState >= 2;
+		mediaW = source.videoWidth;
+		mediaH = source.videoHeight;
+	}
+	if(canDraw){
+
+		const pastMediaW =
+		    bgPast instanceof HTMLVideoElement
+		        ? bgPast.videoWidth
+		        : bgPast.width;
+
+		const pastMediaH =
+		    bgPast instanceof HTMLVideoElement
+		        ? bgPast.videoHeight
+		        : bgPast.height;
+
+		ctx.drawImage(
+		    bgPast,
+		    sx/WORLD_W*pastMediaW,
+		    sy/WORLD_H*pastMediaH,
+		    srcW/WORLD_W*pastMediaW,
+		    srcH/WORLD_H*pastMediaH,
+		    0,
+		    0,
+		    VIEW_W,
+		    VIEW_H
+		);
+
+		ctx.save();
+		ctx.globalAlpha=presentAlpha;
+		if(isPanelPhase()){
+		    const panelCols=currentStage.cols;
+		    const panelRows=currentStage.rows;
+		    const panelWorldW=WORLD_W/panelCols;
+		    const panelWorldH=WORLD_H/panelRows;
+		    for(let gy=0;gy<panelRows;gy++){
+		        for(let gx=0;gx<panelCols;gx++){
+		            const destIndex=gy*panelCols+gx;
+		            const sourceIndex=panelState[destIndex];
+		            const srcGX=sourceIndex%panelCols;
+		            const srcGY=Math.floor(sourceIndex/panelCols);
+
+					if(fixedPanels.has(destIndex)){
+					    if(currentStage.gameType==="restoring"){
+					        ctx.drawImage(
+					            presentCanvas,
+					            srcGX*panelWorldW,
+					            srcGY*panelWorldH,
+					            panelWorldW,
+					            panelWorldH,
+					            (gx*panelWorldW-sx)*zoom,
+					            (gy*panelWorldH-sy)*zoom,
+					            panelWorldW*zoom,
+					            panelWorldH*zoom
+					        );
+					    }else{
+					        const pastMediaW=
+					            bgPast instanceof HTMLVideoElement
+					                ? bgPast.videoWidth
+					                : bgPast.width;
+					        const pastMediaH=
+					            bgPast instanceof HTMLVideoElement
+					                ? bgPast.videoHeight
+					                : bgPast.height;
+					        ctx.drawImage(
+					            bgPast,
+					            srcGX*(pastMediaW/panelCols),
+					            srcGY*(pastMediaH/panelRows),
+					            pastMediaW/panelCols,
+					            pastMediaH/panelRows,
+					            (gx*panelWorldW-sx)*zoom,
+					            (gy*panelWorldH-sy)*zoom,
+					            panelWorldW*zoom,
+					            panelWorldH*zoom
+					        );
+					    }
+					}else{
+					    ctx.drawImage(
+					        presentCanvas,
+					        srcGX*panelWorldW,
+					        srcGY*panelWorldH,
+					        panelWorldW,
+					        panelWorldH,
+					        (gx*panelWorldW-sx)*zoom,
+					        (gy*panelWorldH-sy)*zoom,
+					        panelWorldW*zoom,
+					        panelWorldH*zoom
+					    );
+					}
+		        }
+		    }
+		}else{
+		    ctx.drawImage(presentCanvas,sx,sy,srcW,srcH,0,0,VIEW_W,VIEW_H);
+		}
+		ctx.restore();
+	}else{
+		    ctx.fillStyle="#567";
+		    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+	}
+	// グリッド罫線表示
+	if(showGrid){
+		ctx.strokeStyle=`rgba(255,255,255,${gridAlpha})`;
+		ctx.lineWidth=1;
+		const cellWorldW = cellW;
+		const cellWorldH = cellH;
+	   /* 縦線 */
+	   const startGX = Math.floor(sx / cellWorldW);
+	   const endGX   = Math.ceil((sx + srcW) / cellWorldW);
+	   for(let gx=startGX; gx<=endGX; gx++){
+	      const worldX  = gx * cellWorldW;
+	      const screenX = (worldX - sx) * zoom;
+	      ctx.beginPath();
+	      ctx.moveTo(screenX,0);
+	      ctx.lineTo(screenX,VIEW_H);
+	      ctx.stroke();
+	   }
+	   /* 横線 */
+	   const startGY = Math.floor(sy / cellWorldH);
+	   const endGY   = Math.ceil((sy + srcH) / cellWorldH);
+	   for(let gy=startGY; gy<=endGY; gy++){
+	      const worldY  = gy * cellWorldH;
+	      const screenY = (worldY - sy) * zoom;
+	      ctx.beginPath();
+	      ctx.moveTo(0,screenY);
+	      ctx.lineTo(VIEW_W,screenY);
+	      ctx.stroke();
+	   }
+	}
+
+	//イベントアイコン表示
+	ctx.save();
+	ctx.globalAlpha=iconAlpha;
+	ctx.fillStyle="#fff";
+	for(const e of events){
+	    if(!isEventVisible(e)) continue;
+	    if(e.type==="goal" && !goalUnlocked) continue;
+	    const ex=(e.x-sx)*zoom;
+	    const ey=(e.y-sy)*zoom;
+	    ctx.font="20px sans-serif";
+	    ctx.fillText(
+	        e.type==="goal"
+	            ? "★"
+	            : (e.read?"✓":"▼"),
+	        ex,
+	        ey
+	    );
+	}
+	ctx.restore();
+
+	if(isPanelPhase()){
+	    const gx=Math.max(0,Math.min(currentStage.cols-1,Math.floor(player.x/cellW)));
+	    const gy=Math.max(0,Math.min(currentStage.rows-1,Math.floor(player.y/cellH)));
+	    ctx.save();
+		ctx.globalAlpha=iconAlpha;
+	    ctx.strokeStyle="#ff0";
+	    ctx.lineWidth=3;
+	    ctx.strokeRect( (gx*cellW-sx)*zoom, (gy*cellH-sy)*zoom, cellW*zoom, cellH*zoom );
+	    ctx.restore();
+
+		//fixedパネルを緑枠で表示
+		ctx.save();
+		ctx.globalAlpha=iconAlpha;
+		for(const fixedIndex of fixedPanels){
+		    const fx=fixedIndex%currentStage.cols;
+		    const fy=Math.floor(fixedIndex/currentStage.cols);
+		    ctx.strokeStyle="#0f0";
+		    ctx.lineWidth=3;
+		    const inset=ctx.lineWidth/2;
+		    ctx.strokeRect( (fx*cellW-sx)*zoom + inset, (fy*cellH-sy)*zoom + inset, cellW*zoom - inset*2, cellH*zoom - inset*2 );
+		}
+		ctx.restore();
+		
+		// 正解したパネルを一瞬発光
+		ctx.save();
+		for(const [panelIndex,endTime] of flashPanels){
+		    const remain=endTime-performance.now();
+		    if(remain<=0){
+		        flashPanels.delete(panelIndex);
+		        continue;
+		    }
+		    const fx=panelIndex%currentStage.cols;
+		    const fy=Math.floor(panelIndex/currentStage.cols);
+		    ctx.fillStyle=`rgba(255,255,255,${remain/300})`;
+		    ctx.fillRect((fx*cellW-sx)*zoom,(fy*cellH-sy)*zoom,cellW*zoom,cellH*zoom);
+		}
+		ctx.restore();
+		
+		//選択パネルを赤枠で表示
+		ctx.save();
+		ctx.globalAlpha=iconAlpha;
+		if(selectedPanel!==null){
+		    const sxPanel=selectedPanel%currentStage.cols;
+		    const syPanel=Math.floor(selectedPanel/currentStage.cols);
+		    ctx.strokeStyle="#f00";
+		    ctx.lineWidth=4;
+		    ctx.strokeRect( (sxPanel*cellW-sx)*zoom, (syPanel*cellH-sy)*zoom, cellW*zoom, cellH*zoom );
+		}
+		ctx.restore();
+	}
+
+	// 主人公キャラ描画
+	const px=Math.max( 8, Math.min( VIEW_W-8, (player.x-sx)*zoom ) );
+	const py=Math.max( 8, Math.min( VIEW_H-8, (player.y-sy)*zoom ) );
+	ctx.save();
+	ctx.globalAlpha=iconAlpha;
+
+	if(USE_CHARACTER_IMAGE){
+	    const darkness=Math.min(1,clearedStages.size*CHARACTER_DARKNESS_PER_STAGE);
+	    ctx.filter=`brightness(${1-darkness})`;
+	    ctx.drawImage(playerImage,px-CHARACTER_SIZE/2,py-CHARACTER_SIZE/2,CHARACTER_SIZE,CHARACTER_SIZE);
+	    ctx.filter="none";
+	}else{
+	    ctx.fillStyle="red";
+	    ctx.beginPath();
+	    ctx.arc(px,py,8,0,Math.PI*2);
+	    ctx.fill();
+	}
+
+	ctx.restore();
+	
+	const rate=paintRate();
+	const rateLabel=
+    isPanelPhase()
+        ? GAME_JOINRATE
+        : GAME_REPAIRRATE;
+
+	if(
+	    (
+	        currentStage.gameType==="paint"
+	        ||
+	        (
+	            currentStage.gameType==="restoring"
+	            &&
+	            repairPhase===2
+	        )
+	    )
+	    &&
+	    rate>=currentStage.clearRate
+	){
+	    goalUnlocked=true;
+	}
+
+	loadButtons.style.visibility="visible";
+	miniMap.style.visibility="visible";
+	gridPos.style.visibility="visible";
+	gridControls.style.visibility="visible";
+	timeText.style.display="block";
+	drawMiniMap();
+	const gx=Math.max( 0, Math.min( currentStage.cols-1, Math.floor(player.x/cellW) ) );
+	const gy=Math.max( 0, Math.min( currentStage.rows-1, Math.floor(player.y/cellH) ) );
+	statusText.innerHTML =
+	`<span class="stageTitle">${currentStage.title}</span>　Mission：${currentStage.goalCondition}　${rateLabel}：${rate.toFixed(1)}%`;
+	backBtn.style.display="inline-block"; // ステージ選択画面に戻る
+	gridPos.innerHTML =
+	`x${gx},y${gy}  Zoom:${zoom.toFixed(1)}<br>X:${Math.floor(player.x)} Y:${Math.floor(player.y)}`;
+	timeText.textContent = "TIME "+formatTime(currentPlayTime);
+	const bestTime=bestTimes[currentStageIndex];
+	bestText.textContent=
+	    bestTime===undefined
+	        ? "BEST --:--"
+	        : "BEST "+formatTime(bestTime);
+	if(!endingActive){
+	    if(isPanelPhase()){
+	        message.textContent = "パネルを交換して修復しよう";
+	    }else{
+	        message.textContent=
+	            goalUnlocked
+	              ? "★ ゴール解放！"
+	              : "石碑を調べながら塗ろう";
+	    }
+	}
+}
+
+function loop(){
+	if(
+	    gameMode==="game" && !endingActive
+	){
+	    currentPlayTime = (performance.now()-stageStartTime)/1000;
+	}
+	if(!dialogOpen){
+		  let dx=padDX,dy=padDY;
+		  if(keys.arrowup)dy--;
+		  if(keys.arrowdown)dy++;
+		  if(keys.arrowleft)dx--;
+		  if(keys.arrowright)dx++;
+
+		  if(dx||dy){
+			    const len=Math.hypot(dx,dy);
+			    dx/=len; dy/=len;
+			    const ox=player.x, oy=player.y;
+				// 移動速度
+				const currentSpeed=
+				  PLAYER_SPEED *
+				  (dashActive ? DASH_MULTIPLIER : 1);
+				player.x=Math.max(
+				  0,
+				  Math.min(
+				    WORLD_W,
+				    player.x+dx*currentSpeed
+				  )
+				);
+				player.y=Math.max(
+				  0,
+				  Math.min(
+				    WORLD_H,
+				    player.y+dy*currentSpeed
+				  )
+				);
+				
+				// panelフェーズでは軌跡を残さない
+				if(!isPanelPhase()){
+				    presentCtx.save();
+				    presentCtx.globalCompositeOperation=
+				        "destination-out";
+				    presentCtx.strokeStyle="#000";
+				    presentCtx.lineWidth=RESTORE_BRUSH_SIZE;
+				    presentCtx.lineCap="round";
+				    presentCtx.beginPath();
+				    presentCtx.moveTo(ox,oy);
+				    presentCtx.lineTo(player.x,player.y);
+				    presentCtx.stroke();
+				    presentCtx.restore();
+				}
+				// グリッド訪問処理（プレイヤーが一度でも通過したグリッドを訪問済みとして記録）
+			    markVisited();
+		  }
+	}
+
+	if(
+	    currentStage.gameType==="restoring" && repairPhase===1 && fixedPanels.size===panelState.length
+	){
+	    repairPhase=2;
+	    visited.clear();
+	    markVisited();
+	    buildEvents();
+	    playStageBGM(currentStage);
+	}
+	else if(
+	    isPanelPhase() && !endingActive && paintRate()>=100
+	){
+	    registerStageClear();
+	    updateBestTime();
+	    updateSaveURL();
+	    endingActive=true;
+	    endingPhase=1;
+	    endingPhaseStart=performance.now();
+	}
+	updateEnding();
+	draw();
+	requestAnimationFrame(loop);
+}
+//↑↓←→  移動
+//A       調べる
+//B       ダッシュ
+//Space   調べる
+//J       調べる（互換）
+addEventListener("keydown",e=>{
+    if(!pressOpened){
+        showTitlePanel();
+        return;
+    }
+    if(isTitlePanelOpen()){
+        return;
+    }
+	const key=e.key.toLowerCase();
+	keys[key]=true;
+	if(gameMode==="stageSelect"){
+	    if(bgmPlayer.paused){
+	        playTitleBGM();
+	    }	
+	    if(key==="arrowleft"){
+	        moveStageCursor(-1,0);
+	    }
+	    if(key==="arrowright"){
+	        moveStageCursor(1,0);
+	    }
+	    if(key==="arrowup"){
+	        moveStageCursor(0,-1);
+	    }
+	    if(key==="arrowdown"){
+	        moveStageCursor(0,1);
+	    }
+	}
+	if(
+	    e.key===" " || key==="j" || key==="a"
+	){
+		if(gameMode==="stageSelect"){
+			const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+			const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    
+			const stageData=stages[index];
+				if(stageData){
+				    currentStageIndex=index;
+				    loadStage(stageData);
+				    gameMode="game";
+				}
+		    return;
+		}
+	    if(isPanelPhase()){
+	        selectPanel();
+	        return;
+	    }
+	    if(dialogOpen){
+	        closeEvent();
+	    }else{
+	        openEvent();
+	    }
+	}
+	if(key==="b"){
+	     if(dialogOpen){
+	          closeEvent();
+	     }else{
+	          dashActive=true;
+	     }
+	}
+	if(
+	    dialogOpen && e.key==="Enter"
+	){
+	    closeEvent();
+	}
+});
+addEventListener("keyup",e=>{
+	 const key=e.key.toLowerCase();
+	 delete keys[key];
+	 if(key==="b"){
+		  dashActive=false;
+	 }
+});
+
+document.querySelectorAll("[data-dx]").forEach(b=>{
+     const on=()=>{
+        if(isTitlePanelOpen()){
+            return;
+        }
+	    if(gameMode==="stageSelect" && bgmPlayer.paused){
+	        playTitleBGM();
+	    }
+        const dx=+b.dataset.dx;
+        const dy=+b.dataset.dy;
+        if(gameMode==="stageSelect"){
+            moveStageCursor(dx,dy);
+            return;
+        }
+        padDX=dx;
+        padDY=dy;
+     };
+     const off=()=>{
+        padDX=0;
+        padDY=0;
+     };
+     b.addEventListener("pointerdown",on);
+     b.addEventListener("pointerup",off);
+     b.addEventListener("pointerleave",off);
+});
+
+// ステージ選択に戻るボタンの処理
+backBtn.onclick=()=>{
+    if(isTitlePanelOpen()){
+        return;
+    }
+    playSE(SE_BACK);
+    if(gameMode==="stageSelect"){
+        document.getElementById("title-panel").style.display="flex";
+        playTitleBGM();
+        return;
+    }
+    if(bgPast instanceof HTMLVideoElement){
+        bgPast.pause();
+    }
+	setTimeout(()=>{
+	    playTitleBGM();
+	},500);
+	gameMode="stageSelect";
+	const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	stagePage=Math.floor(currentStageIndex/pageSize);
+	const pageIndex=currentStageIndex%pageSize;
+	stageCursorX=pageIndex%STAGE_SELECT_COLS;
+	stageCursorY=Math.floor(pageIndex/STAGE_SELECT_COLS);
+};
+gridBtn.onclick=()=>showGrid=!showGrid;
+zoomIn.onclick=()=>zoom=Math.min(8,zoom*1.2);
+zoomOut.onclick=()=>
+  zoom=Math.max( MIN_ZOOM, zoom/1.2 );
+btnA.onclick=()=>{
+    if(isTitlePanelOpen()){
+        return;
+    }
+	if(gameMode==="stageSelect"){
+		const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+		const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+		const stageData=stages[index];
+		if(stageData){
+		    currentStageIndex=index;
+		    loadStage(stageData);
+		    gameMode="game";
+		}
+	    return;
+	}
+    if(isPanelPhase()){
+        selectPanel();
+        return;
+    }
+    if(dialogOpen){
+        closeEvent();
+    }else{
+        openEvent();
+    }
+};
+btnB.onclick=()=>{
+  if(dialogOpen){
+    closeEvent();
+  }
+};
+// Bダッシュ
+btnB.addEventListener("pointerdown",()=>{
+  if(!dialogOpen){
+    dashActive=true;
+  }
+});
+
+btnB.addEventListener("pointerup",()=>{
+  dashActive=false;
+});
+
+btnB.addEventListener("pointerleave",()=>{
+  dashActive=false;
+});
+
+btnB.addEventListener("pointercancel",()=>{
+  dashActive=false;
+});
+// 画像ファイル指定
+loadPastBtn.onclick=()=>{
+    loadTarget="past";
+    filePicker.click();
+};
+
+loadPresentBtn.onclick=()=>{
+    loadTarget="present";
+    filePicker.click();
+};
+filePicker.onchange=e=>{
+    const f=e.target.files[0];
+    if(!f)return;
+    const url=URL.createObjectURL(f);
+    // メモリ解放
+    if(loadTarget==="past"){
+	    if(currentPastObjectURL){
+	        URL.revokeObjectURL(currentPastObjectURL);
+	    }
+	    currentPastObjectURL=url;
+	}else{
+	    if(currentPresentObjectURL){
+	        URL.revokeObjectURL(currentPresentObjectURL);
+	    }
+	    currentPresentObjectURL=url;
+	}
+    
+    // 過去LOAD
+    if(loadTarget==="past"){
+        if(/\.(mp4|webm)$/i.test(f.name)){
+            const video=document.createElement("video");
+            video.src=url;
+            video.loop=true;
+            video.muted=true;
+            video.playsInline=true;
+            video.addEventListener("loadeddata",()=>{
+                video.play().catch(()=>{});
+                bgPast=video;
+            });
+        }else{
+            const img=new Image();
+            img.onload=()=>{
+                bgPast=img;
+            };
+            img.src=url;
+        }
+        return;
+    }
+    // 現在LOAD
+    const img=new Image();
+	img.onload=()=>{
+	    bgPresent=img;
+		presentCtx.clearRect(0,0,WORLD_W,WORLD_H);
+		presentCtx.drawImage(bgPresent,0,0,WORLD_W,WORLD_H);
+	};
+    img.src=url;
+};
+
+loadSaveFromURL();
+loadStage(stages[0]);
+markVisited();
+loop();
+
+document.getElementById("press-panel").style.display="flex";
+document.getElementById("title-panel").style.display="flex";
+
+document.getElementById("press-panel")
+.addEventListener(
+    "pointerdown",
+    ()=>{
+        showTitlePanel();
+    }
+);
+document.getElementById("start-game-btn")
+.addEventListener(
+    "click",
+    ()=>{
+    	playSE(SE_GO);
+        document.getElementById("title-panel").style.display="none";
+    }
+);
+// 画面サイズに合わせてゲーム全体を縮小
+function fitGameToScreen(){
+    const game=document.getElementById("game");
+    const scale=Math.min(
+        window.innerWidth / 854,
+        window.innerHeight / 480
+    ) * 0.95;
+    game.style.transform = `scale(${scale})`;
+    game.style.transformOrigin = "center center";
+}
+fitGameToScreen();
+window.addEventListener(
+    "resize",
+    fitGameToScreen
+);
+</script>
+</body>
+</html>
