@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
-<!-- TimeWiper - 修復者 - -->
-<!-- ver20260602 -->
+<!-- TimeWiper - タイムワイパー・修復者 - -->
+<!-- ver20260603 -->
 <!-- Copyright (C) 2026 Factory Digital Entertainment. All rights reserved. -->
 <!-- このゲーム及び、ゲーム内の使用楽曲の著作権は全て、ファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
 <!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TimeWiper - 修復者 - powered by Picture Grid Engine Ver 0.85</title>
+<title>TimeWiper - イムワイパー・修復者 - powered by Picture Grid Engine Ver 0.9</title>
 <style>
 body{
     margin:0; background:#222; font-family:sans-serif; display:flex; justify-content:center;
@@ -24,6 +24,9 @@ body{
 #left{ background:#bbb; display:flex; justify-content:center; align-items:center; position:relative; }
 #logoBox{ position:absolute; top:12px; left:50%; transform:translateX(-50%); }
 #gameLogo{ width:130px; height:auto; }
+#timeBox{ position:absolute; top:90px; left:50%; transform:translateX(-50%); width:130px;
+	text-align:center; font-size:14px; font-weight:bold; line-height:1.5; color:#222;
+}
 #right{ background:#bbb; display:flex; justify-content:flex-start; align-items:center; flex-direction:column; gap:6px; }
 #filePicker{ width:130px; }
 #pad{ display:grid; grid-template-columns:repeat(3,40px); gap:4px; margin-top:60px; }
@@ -118,7 +121,7 @@ button:active{
 		"startX":300,
 		"startY":300,
 		"zoom":0.287,
-		"clearRate":30,
+		"clearRate":100,
 		"goalCondition":"接合率100%でクリア",
 		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
 	},
@@ -146,34 +149,42 @@ button:active{
 	},
 
 	{
-		"title":"仮4",
+		"title":"京panel",
 		"gameType":"panel",
-		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
-		"cols":3,
-		"rows":2,
+		"bgm":"./bgm/bgm_s3.mp3",
+		"thumb":"./img/thumb04.png",
+		"present":"./img/s04_present.png",
+		"past":"./img/s04_past.png",
+		"cols":7,
+		"rows":5,
 		"startX":300,
 		"startY":300,
 		"zoom":0.287,
-		"clearRate":30,
+		"clearRate":100,
 		"goalCondition":"接合率100%でクリア",
 		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
 	},
 	{
-		"title":"仮5",
-		"gameType":"panel",
-		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
-		"cols":3,
-		"rows":2,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":30,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"title":"京paint",
+		"gameType":"paint",
+		"bgm":"./bgm/bgm_s3.mp3",
+		"thumb":"./img/thumb05.png",
+		"present":"./img/s04_present.png",
+		"past":"./img/s04_past.png",
+		"cols":16,
+		"rows":12,
+		"startX":1000,
+		"startY":669,
+		"zoom":0.295,
+		"clearRate":70,
+		"goalCondition":"修復率70%以上でゴール解放",
+		"endingMessage":"世界は、本来の姿を取り戻した。",
+		"events":[
+		    {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
+		    {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
+		    {"id":"stone3","x":1400,"y":800,"hiddenUntilRepair":true,"title":"石碑③","text":"落石注意！"},
+		    {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+		]
 	},
 	{
 		"title":"仮6",
@@ -219,6 +230,81 @@ button:active{
 		"clearRate":30,
 		"goalCondition":"接合率100%でクリア",
 		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮9",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮10",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮11",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮12",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+	},
+	{
+		"title":"仮13",
+		"gameType":"panel",
+		"thumb":"./img/thumb02.jpg",
+		"present":"./img/2nd_present.jpg",
+		"past":"./img/2nd_past.jpg",
+		"cols":3,
+		"rows":2,
+		"startX":300,
+		"startY":300,
+		"zoom":0.287,
+		"clearRate":30,
+		"goalCondition":"接合率100%でクリア",
+		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
 	}
 
 ]
@@ -252,6 +338,10 @@ button:active{
 <div id="left">
 <div id="logoBox">
     <img id="gameLogo" src="./img/logo.png" alt="TimeWiper">
+</div>
+<div id="timeBox">
+    <div id="bestText">BEST --:--</div>
+    <div id="timeText">TIME --:--</div>
 </div>
 <div id="pad">
 	<button class="pad-horizontal" data-dx="-1" data-dy="-1">↖</button><button class="pad-horizontal" data-dx="0" data-dy="-1">↑</button><button class="pad-horizontal" data-dx="1" data-dy="-1">↗</button>
@@ -397,10 +487,22 @@ function registerStageClear(){
     clearedStages.add(currentStageIndex);
 }
 
+function updateBestTime(){
+    const time=Math.floor(currentPlayTime);
+    const best=bestTimes[currentStageIndex];
+    if(
+        best===undefined || time < best
+    ){
+        bestTimes[currentStageIndex]=time;
+    }
+}
+
 function loadStage(stageData){
 	console.log("loadStage",stageData);
 	loadStageMedia(stageData);
 	playStageBGM(stageData);
+	stageStartTime=performance.now();
+	currentPlayTime=0;
     currentStage=stageData;
     player.x=currentStage.startX;
     player.y=currentStage.startY;
@@ -438,6 +540,13 @@ let pressOpened=false;
 const GAME_TITLE="TimeWiper - 修復者 -";
 const GAME_REPAIRRATE="修復率";
 const GAME_JOINRATE="接合率";
+// ステージグリッド数
+const STAGE_SELECT_COLS=2;
+const STAGE_SELECT_ROWS=2;
+// ステージサムネイルのサイズとページ送り矢印も含めたY位置
+const gridW=470;
+const gridH=320;
+const gridStartY=20;
 // 画像表示枠と、読み込み想定画像サイズの絶妙な固定値
 const VIEW_W=574,
       VIEW_H=384,
@@ -461,11 +570,50 @@ const ENDING_TEXT_SPEED   = 70;   //endingMessageの表示速度(ms/文字)
 // ============================
 
 const clearedStages=new Set(); //ステージクリアセット
+let stageStartTime=0;
+let currentPlayTime=0;
+const bestTimes={};
 
-const player={
-    x:0,
-    y:0
-};
+//URLセーブ用配列格納例
+//{
+//    c:[0,2,4],
+//    b:{
+//        0:95,
+//        2:123,
+//        4:87
+//    }
+//}
+function buildSaveData(){
+    return{
+        c:[...clearedStages].sort((a,b)=>a-b),
+        b:{...bestTimes}
+    };
+}
+//戻り値は eyJjIjpbMCwyLDRdLCJiIjp7IjAiOjk1LCIyIjoxMjMsIjQiOjg3fX0= のようなBase64文字列になる。
+function encodeSaveData(){
+    return btoa( JSON.stringify( buildSaveData() ) );
+}
+function updateSaveURL(){
+    const url = location.pathname + "?save=" + encodeURIComponent( encodeSaveData() );
+    history.replaceState( null, "", url );
+}
+function decodeSaveData(save){
+    return JSON.parse( atob(save) );
+}
+function loadSaveFromURL(){
+    const save=new URLSearchParams(location.search).get("save");
+    if(!save)return;
+    //異常URLパラメータでもゲーム続行可能
+    try{
+        const data=decodeSaveData(save);
+        clearedStages.clear();
+        data.c?.forEach(i=>clearedStages.add(i));
+        Object.keys(bestTimes).forEach(k=>delete bestTimes[k]);
+        Object.assign(bestTimes,data.b||{});
+    }catch(e){}
+}
+
+const player={ x:0, y:0 };
 const visited=new Set();
 let events=[];
 let selectedPanel=null;
@@ -582,23 +730,62 @@ let endingTextIndex=0;
 // ステージ選択関連
 let stageCursorX=0;
 let stageCursorY=0;
+let stagePage=0;
+// ページ送りボタン押下演出
+let leftArrowFlashUntil=0;
+let rightArrowFlashUntil=0;
+
 stages.forEach(stage=>{
     stage.image=new Image();
     stage.image.src=stage.thumb;
 });
 // ステージカーソル移動関数
 function moveStageCursor(dx,dy){
-    stageCursorX=Math.max( 0,Math.min(STAGE_SELECT_COLS-1,stageCursorX+dx ) );
-    stageCursorY=Math.max( 0,Math.min(STAGE_SELECT_ROWS-1,stageCursorY+dy ) );
+    const pageSize = STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+    const maxPage = Math.max(0,Math.ceil(stages.length/pageSize)-1);
+    if(dx>0 && stageCursorX===STAGE_SELECT_COLS-1){
+        if(stagePage<maxPage){
+            stagePage++;
+            stageCursorX=0;
+            clampStageCursorToExisting();
+        }
+        return;
+    }
+    if(dx<0 && stageCursorX===0){
+        if(stagePage>0){
+            stagePage--;
+            stageCursorX=STAGE_SELECT_COLS-1;
+            clampStageCursorToExisting();
+        }
+        return;
+    }
+	const oldX=stageCursorX;
+	const oldY=stageCursorY;
+	stageCursorX=Math.max( 0, Math.min(STAGE_SELECT_COLS-1,stageCursorX+dx)  );
+	stageCursorY=Math.max( 0, Math.min(STAGE_SELECT_ROWS-1,stageCursorY+dy) );
+	const pageOffset=stagePage*STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	const index=pageOffset+stageCursorY*STAGE_SELECT_COLS+stageCursorX;
+	if(!stages[index]){
+	    stageCursorX=oldX;
+	    stageCursorY=oldY;
+	}
+}
+function clampStageCursorToExisting(){
+    const pageSize = STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+    const pageOffset = stagePage * pageSize;
+    let index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    while(
+        index >= stages.length && stageCursorX > 0
+    ){
+        stageCursorX--;
+        index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    }
 }
 
 const MIN_ZOOM = Math.min(
   VIEW_W / WORLD_W,
   VIEW_H / WORLD_H
 );
-// ステージグリッド数
-const STAGE_SELECT_COLS=3;
-const STAGE_SELECT_ROWS=2;
 
 let showGrid=true;
 let goalUnlocked=false;
@@ -606,6 +793,12 @@ let repairPhase=1;
 let padDX=0,padDY=0;
 let dialogOpen=false;
 const keys={};
+
+function formatTime(seconds){
+    const m=Math.floor(seconds/60);
+    const s=Math.floor(seconds%60);
+    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
 
 // Bダッシュを使用可能にする
 let dashActive=false;
@@ -679,6 +872,8 @@ function closeEvent(){
         !endingActive
     ){
     	registerStageClear();
+    	updateBestTime();
+    	updateSaveURL();
         endingActive=true;
         endingPhase=1;
         endingPhaseStart=performance.now();
@@ -721,9 +916,56 @@ dialog.addEventListener("click",()=>{
 });
 
 cv.addEventListener("pointerdown",e=>{
+	if(gameMode==="stageSelect"){
+	    const rect=cv.getBoundingClientRect();
+	    const mx=(e.clientX-rect.left)*(VIEW_W/rect.width);
+	    const my=(e.clientY-rect.top)*(VIEW_H/rect.height);
+	    const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	    const maxPage=Math.max(0,Math.ceil(stages.length/pageSize)-1);
+	    if(my>=170 && my<=250){
+	        if(mx>=20 && mx<=90 && stagePage>0){
+	            playSE(SE_GO);
+	            leftArrowFlashUntil=performance.now()+100;
+	            stagePage--;
+	            return;
+	        }
+	        if(mx>=VIEW_W-90 && mx<=VIEW_W-20 && stagePage<maxPage){
+	            playSE(SE_GO);
+	            rightArrowFlashUntil=performance.now()+100;
+	            stagePage++;
+	            return;
+	        }
+	    }
+	    const startX=(VIEW_W-gridW)/2;
+	    const startY=gridStartY;
+	    const thumbW=gridW/STAGE_SELECT_COLS;
+	    const thumbH=gridH/STAGE_SELECT_ROWS;
+	    if(
+	        mx>=startX &&
+	        mx<startX+gridW &&
+	        my>=startY &&
+	        my<startY+gridH
+	    ){
+	        const gx=Math.floor((mx-startX)/thumbW);
+	        const gy=Math.floor((my-startY)/thumbH);
+
+	        const pageOffset=stagePage*pageSize;
+	        const index=pageOffset+gy*STAGE_SELECT_COLS+gx;
+
+	        const stageData=stages[index];
+	        if(stageData){
+	            playSE(SE_GO);
+	            currentStageIndex=index;
+	            loadStage(stageData);
+	            gameMode="game";
+	        }
+	    }
+	    return;
+	}
     if(gameMode!=="game") return;
     if(!isPanelPhase()) return;
     if(dialogOpen) return;
+
 	const rect=cv.getBoundingClientRect();
 	const mx=(e.clientX-rect.left)*(VIEW_W/rect.width);
 	const my=(e.clientY-rect.top)*(VIEW_H/rect.height);
@@ -742,20 +984,8 @@ cv.addEventListener("pointerdown",e=>{
     }
     const worldX=sx+(mx/zoom);
     const worldY=sy+(my/zoom);
-    const gx=Math.max(
-        0,
-        Math.min(
-            currentStage.cols-1,
-            Math.floor(worldX/cellW)
-        )
-    );
-    const gy=Math.max(
-        0,
-        Math.min(
-            currentStage.rows-1,
-            Math.floor(worldY/cellH)
-        )
-    );
+    const gx=Math.max( 0,Math.min(currentStage.cols-1,Math.floor(worldX/cellW) ) );
+    const gy=Math.max( 0,Math.min(currentStage.rows-1,Math.floor(worldY/cellH) ) );
     const panelIndex=gy*currentStage.cols+gx;
     selectPanelByIndex(panelIndex);
 });
@@ -766,26 +996,23 @@ function drawStageSelect(){
     ctx.textAlign="center";
     ctx.fillStyle="#fff";
     ctx.font="32px sans-serif";
-    ctx.fillText( GAME_TITLE, VIEW_W/2, 40 );
-    // ステージサムネイルのサイズ
-	const gridW=470;
-	const gridH=240;
+    // ctx.fillText( GAME_TITLE, VIEW_W/2, 40 );
     const startX=(VIEW_W-gridW)/2;
-    const startY=90;
+    const startY=gridStartY;
     const cellW=gridW/STAGE_SELECT_COLS;
     const cellH=gridH/STAGE_SELECT_ROWS;
     for(let y=0;y<STAGE_SELECT_ROWS;y++){
         for(let x=0;x<STAGE_SELECT_COLS;x++){
             const px=startX+x*cellW;
             const py=startY+y*cellH;
-            const selected=
-                x===stageCursorX && y===stageCursorY;
-            ctx.lineWidth=
-                selected ? 4 : 1;
-            ctx.strokeStyle=
-                selected ? "#ff0" : "#888";
-            ctx.strokeRect(px,py,cellW,cellH);
-			const index = y*STAGE_SELECT_COLS+x;
+            const selected = x === stageCursorX && y === stageCursorY;
+			if(selected){
+			    ctx.lineWidth = 4;
+			    ctx.strokeStyle = "#ff0";
+			    ctx.strokeRect(px,py,cellW,cellH);
+			}
+			const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+			const index = pageOffset + y * STAGE_SELECT_COLS + x;
 
 			const stageData = stages[index];
 			if(stageData){
@@ -797,13 +1024,28 @@ function drawStageSelect(){
 			    ctx.fillStyle="#fff";
 			    ctx.font="16px sans-serif";
 			    ctx.fillText( stageData.title, px+cellW/2, py+cellH-8 );
+			    if(clearedStages.has(index)){
+				    ctx.font="28px sans-serif";
+				    ctx.fillStyle="#0f0";
+				    ctx.fillText("✓",px+cellW-20,py+30);
+				}
 			}
         }
     }
-    ctx.fillStyle="#fff";
-    ctx.font="16px sans-serif";
-    ctx.fillText("A : START",VIEW_W/2,VIEW_H-20);
-    ctx.textAlign="left";
+	const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	const maxPage=Math.max(0,Math.ceil(stages.length/pageSize)-1);
+	const now=performance.now();
+	ctx.font="36px sans-serif";
+	const arrowY=startY+gridH/2+12;
+	if(stagePage>0){
+	    ctx.font=now<leftArrowFlashUntil ? "28px sans-serif" : "36px sans-serif";
+	    ctx.fillText("◀",25,arrowY);
+	}
+	if(stagePage<maxPage){
+	    ctx.font=now<rightArrowFlashUntil ? "28px sans-serif" : "36px sans-serif";
+	    ctx.fillText("▶",VIEW_W-25,arrowY);
+	}
+	ctx.textAlign="left";
 }
 
 function drawMiniMap(){
@@ -938,16 +1180,29 @@ function updateEnding(){
 }
 
 function draw(){
-    if(gameMode==="stageSelect"){
-        drawStageSelect();
-        statusText.textContent = "ステージを選択";
-        backBtn.style.display="inline-block";
+	if(gameMode==="stageSelect"){
+	    drawStageSelect();
+	    statusText.textContent = "ステージを選択";
+	    message.textContent = "A : START";
+	    backBtn.style.display="inline-block";
 		loadButtons.style.visibility="hidden";
 		miniMap.style.visibility="hidden";
 		gridPos.style.visibility="hidden";
 		gridControls.style.visibility="hidden";
-        return;
-    }
+
+		const pageOffset=stagePage*STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+		const index=pageOffset+stageCursorY*STAGE_SELECT_COLS+stageCursorX;
+		const bestTime=bestTimes[index];
+
+		bestText.textContent=
+		    bestTime===undefined
+		        ? "BEST --:--"
+		        : "BEST "+formatTime(bestTime);
+
+		timeText.style.display="none";
+
+	    return;
+	}
 	const srcW=VIEW_W/zoom, srcH=VIEW_H/zoom;
 	let sx,sy;
 	if(srcW >= WORLD_W){
@@ -1117,7 +1372,7 @@ function draw(){
 	    ctx.font="20px sans-serif";
 	    ctx.fillText(
 	        e.type==="goal"
-	            ? "🏁"
+	            ? "★"
 	            : (e.read?"✓":"▼"),
 	        ex,
 	        ey
@@ -1222,6 +1477,7 @@ function draw(){
 	miniMap.style.visibility="visible";
 	gridPos.style.visibility="visible";
 	gridControls.style.visibility="visible";
+	timeText.style.display="block";
 	drawMiniMap();
 	const gx=Math.max( 0, Math.min( currentStage.cols-1, Math.floor(player.x/cellW) ) );
 	const gy=Math.max( 0, Math.min( currentStage.rows-1, Math.floor(player.y/cellH) ) );
@@ -1230,20 +1486,31 @@ function draw(){
 	backBtn.style.display="inline-block"; // ステージ選択画面に戻る
 	gridPos.innerHTML =
 	`x${gx},y${gy}  Zoom:${zoom.toFixed(1)}<br>X:${Math.floor(player.x)} Y:${Math.floor(player.y)}`;
+	timeText.textContent = "TIME "+formatTime(currentPlayTime);
+	const bestTime=bestTimes[currentStageIndex];
+	bestText.textContent=
+	    bestTime===undefined
+	        ? "BEST --:--"
+	        : "BEST "+formatTime(bestTime);
 	if(!endingActive){
 	    if(isPanelPhase()){
 	        message.textContent = "パネルを交換して修復しよう";
 	    }else{
 	        message.textContent=
 	            goalUnlocked
-	              ? "🏁 ゴール解放！"
+	              ? "★ ゴール解放！"
 	              : "石碑を調べながら塗ろう";
 	    }
 	}
 }
 
 function loop(){
-	 if(!dialogOpen){
+	if(
+	    gameMode==="game" && !endingActive
+	){
+	    currentPlayTime = (performance.now()-stageStartTime)/1000;
+	}
+	if(!dialogOpen){
 		  let dx=padDX,dy=padDY;
 		  if(keys.arrowup)dy--;
 		  if(keys.arrowdown)dy++;
@@ -1290,7 +1557,7 @@ function loop(){
 				// グリッド訪問処理（プレイヤーが一度でも通過したグリッドを訪問済みとして記録）
 			    markVisited();
 		  }
-	 }
+	}
 
 	if(
 	    currentStage.gameType==="restoring" && repairPhase===1 && fixedPanels.size===panelState.length
@@ -1305,6 +1572,8 @@ function loop(){
 	    isPanelPhase() && !endingActive && paintRate()>=100
 	){
 	    registerStageClear();
+	    updateBestTime();
+	    updateSaveURL();
 	    endingActive=true;
 	    endingPhase=1;
 	    endingPhaseStart=performance.now();
@@ -1349,10 +1618,10 @@ addEventListener("keydown",e=>{
 	    e.key===" " || key==="j" || key==="a"
 	){
 		if(gameMode==="stageSelect"){
-			const index=
-			    stageCursorY*STAGE_SELECT_COLS+
-			    stageCursorX;
-				const stageData=stages[index];
+			const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+			const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
+    
+			const stageData=stages[index];
 				if(stageData){
 				    currentStageIndex=index;
 				    loadStage(stageData);
@@ -1434,9 +1703,12 @@ backBtn.onclick=()=>{
 	setTimeout(()=>{
 	    playTitleBGM();
 	},500);
-    gameMode="stageSelect";
-    stageCursorX=currentStageIndex % STAGE_SELECT_COLS;
-    stageCursorY=Math.floor(currentStageIndex / STAGE_SELECT_COLS);
+	gameMode="stageSelect";
+	const pageSize=STAGE_SELECT_COLS*STAGE_SELECT_ROWS;
+	stagePage=Math.floor(currentStageIndex/pageSize);
+	const pageIndex=currentStageIndex%pageSize;
+	stageCursorX=pageIndex%STAGE_SELECT_COLS;
+	stageCursorY=Math.floor(pageIndex/STAGE_SELECT_COLS);
 };
 gridBtn.onclick=()=>showGrid=!showGrid;
 zoomIn.onclick=()=>zoom=Math.min(8,zoom*1.2);
@@ -1447,9 +1719,8 @@ btnA.onclick=()=>{
         return;
     }
 	if(gameMode==="stageSelect"){
-		const index=
-		    stageCursorY*STAGE_SELECT_COLS+
-		    stageCursorX;
+		const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
+		const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
 		const stageData=stages[index];
 		if(stageData){
 		    currentStageIndex=index;
@@ -1549,6 +1820,7 @@ filePicker.onchange=e=>{
     img.src=url;
 };
 
+loadSaveFromURL();
 loadStage(stages[0]);
 markVisited();
 loop();
