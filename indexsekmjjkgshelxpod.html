@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
 <!-- TimeWiper - タイムワイパー・修復者 - -->
-<!-- ver20260603 -->
-<!-- Copyright (C) 2026 Factory Digital Entertainment. All rights reserved. -->
+<!-- powered by Picture Grid Engine Ver 0.9 -->
+<!-- ver20260604 -->
+
+<!-- Copyright (C) 2026 Factory Digital Entertainment and Hironov Yazaki. -->
+<!-- TimeWiper and all music used in this game are protected by copyright. -->
+<!-- No part of TimeWiper or its music may be reproduced, distributed, published, broadcast, or performed without permission from the copyright holders. -->
 <!-- このゲーム及び、ゲーム内の使用楽曲の著作権は全て、ファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
-<!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
 <!-- 上記の著作権者に無断で、これらの著作物を出版・放送・演奏・複製・公開に使用することを禁じます。 -->
+
+<!-- Picture Grid Engine -->
+<!-- Copyright (C) 2026 Factory Digital Entertainment and Hironov Yazaki. -->
+<!-- Released under the MIT License. See LICENSE for details. -->
+<!-- Picture Grid Engineの著作権はファクトリー・デジタル・エンターテインメント、矢崎大信が有します。 -->
+<!-- Picture Grid Engine本体はMITライセンスを適用しています。 -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TimeWiper - イムワイパー・修復者 - powered by Picture Grid Engine Ver 0.9</title>
+<title>TimeWiper - タイムワイパー・修復者 - powered by Picture Grid Engine</title>
 <style>
 body{
     margin:0; background:#222; font-family:sans-serif; display:flex; justify-content:center;
     align-items:center; width:100vw;
     height:100dvh; /* vhをやめdvhにすることでスマホ横持ち時の余白問題を調整 */
     overflow:hidden;
+    touch-action:none; /* キーパッドのスマホ誤作動対策でブラウザ標準機能をOFF */
 }
 #game{width:854px;height:480px;background:#ddd;display:grid;grid-template-columns:140px 574px 140px;grid-template-rows:32px 384px 64px}
 #statusBar,#message{ grid-column:1/span 3; background:#333; color:#fff; padding:6px; box-sizing:border-box; }
@@ -85,7 +95,78 @@ button:active{
 </head>
 <body>
 
-<!-- ステージデータ -->
+<!--
+========================================================
+ステージデータ定義
+========================================================
+title          : ステージ名
+gameType       : ゲームモード
+                 panel     = パネル接合
+                 paint     = 塗り絵修復
+                 restoring = 接合→修復の2段階
+bgm            : ステージBGM
+bgm2           : restoringモードでの Phase2(paint相当時)用BGM
+thumb          : ステージ選択画面でのサムネイル
+clearthumb     : クリア後のサムネイル（省略時はthumbを使用します）
+pict1          : 裏に隠れている画像（修復後）  jpg/png/gif/mp4動画/webm対応
+pict2          : ゲーム開始時の画像（修復対象）jpg/png/gif/webm対応
+cols           : グリッド列数
+rows           : グリッド行数
+startX         : プレイヤーの初期X座標
+startY         : プレイヤーの初期Y座標
+zoom           : 初期ズーム倍率（MAXで8まで。0.287にすると画像全体をピッタリ表示）
+clearRate      : ゴール解放条件を100までの整数で指定。低すぎるとゲーム開始と同時にクリアになるので注意
+                 panelモードの場合…使用しません。
+                 paintモードの場合…修復率の％
+                 restoringモードの場合…フェーズ2(paintモード相当)での修復率の％
+goalCondition  : 画面上のミッション表示文字列
+endingMessage  : 画面下のステージクリア時メッセージ
+
+events         : イベント一覧
+--------------------------------------------------------
+id                : イベント識別子
+x,y               : ワールド座標
+type              : イベント種別
+                    goal = ゴール
+title             : イベントタイトル
+text              : イベント本文
+hiddenUntilRepair : trueなら修復済みグリッド到達まで非表示
+========================================================
+-->
+<!--
+========================================================
+Stage Data Definition
+========================================================
+title             : Stage title
+gameType          : Game mode (panel = Panel Assembly / paint = Image Restoration / restoring = Assembly → Restoration)
+bgm               : Stage BGM
+bgm2              : BGM used during Phase 2 in restoring mode
+thumb             : Thumbnail shown on the stage select screen
+clearthumb        : Thumbnail shown after clearing the stage (uses thumb if omitted)
+pict1             : Hidden image revealed after restoration (jpg/png/gif/mp4/webm)
+pict2             : Initial image to be restored (jpg/png/gif/webm)
+cols              : Number of grid columns
+rows              : Number of grid rows
+startX            : Player's initial X position
+startY            : Player's initial Y position
+zoom              : Initial zoom level (max 8, use 0.287 to fit the entire image on screen)
+clearRate         : Goal unlock condition (0–100)
+                    panel     = not used
+                    paint     = required restoration percentage
+                    restoring = required restoration percentage in Phase 2
+goalCondition     : Mission text displayed on screen
+endingMessage     : Message shown when the stage is cleared
+
+events            : Event list
+--------------------------------------------------------
+id                : Event identifier
+x, y              : World coordinates
+type              : Event type (goal = Goal)
+title             : Event title
+text              : Event message
+hiddenUntilRepair : Hidden until the corresponding grid area is restored
+========================================================
+-->
 <script id="stageData" type="application/json">
 [
 	{
@@ -93,8 +174,9 @@ button:active{
 		"gameType":"paint",
 		"bgm":"./bgm/bgm_s1.mp3",
 		"thumb":"./img/thumb01.jpg",
-		"present":"./img/1st_present.jpg",
-		"past":"./img/1st_past.mp4",
+		"clearthumb":"./img/thumb01_clear.jpg",
+		"pict1":"./img/1st_past.mp4",
+		"pict2":"./img/1st_present.jpg",
 		"cols":16,
 		"rows":12,
 		"startX":1000,
@@ -114,8 +196,9 @@ button:active{
 		"title":"温泉郷",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -131,8 +214,9 @@ button:active{
 		"bgm":"./bgm/bgm_s3.mp3",
 		"bgm2":"./bgm/bgm_s4.mp3",
 		"thumb":"./img/thumb03.jpg",
-		"present":"./img/3rd_present.jpg",
-		"past":"./img/3rd_past.jpg",
+		"clearthumb":"./img/thumb03_clear.jpg",
+		"pict1":"./img/3rd_past.jpg",
+		"pict2":"./img/3rd_present.jpg",
 		"cols":3,
 		"rows":3,
 		"startX":500,
@@ -153,8 +237,9 @@ button:active{
 		"gameType":"panel",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/thumb04.png",
-		"present":"./img/s04_present.png",
-		"past":"./img/s04_past.png",
+		"clearthumb":"./img/thumb04_clear.png",
+		"pict1":"./img/s04_past.png",
+		"pict2":"./img/s04_present.png",
 		"cols":7,
 		"rows":5,
 		"startX":300,
@@ -169,8 +254,9 @@ button:active{
 		"gameType":"paint",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/thumb05.png",
-		"present":"./img/s04_present.png",
-		"past":"./img/s04_past.png",
+		"clearthumb":"./img/thumb05_clear.png",
+		"pict1":"./img/s04_past.png",
+		"pict2":"./img/s04_present.png",
 		"cols":16,
 		"rows":12,
 		"startX":1000,
@@ -190,8 +276,9 @@ button:active{
 		"title":"仮6",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -205,8 +292,9 @@ button:active{
 		"title":"仮7",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -220,8 +308,9 @@ button:active{
 		"title":"仮8",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -235,8 +324,9 @@ button:active{
 		"title":"仮9",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -250,8 +340,9 @@ button:active{
 		"title":"仮10",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -265,8 +356,9 @@ button:active{
 		"title":"仮11",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"clearthumb":"./img/thumb02_clear.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -280,8 +372,8 @@ button:active{
 		"title":"仮12",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -295,8 +387,8 @@ button:active{
 		"title":"仮13",
 		"gameType":"panel",
 		"thumb":"./img/thumb02.jpg",
-		"present":"./img/2nd_present.jpg",
-		"past":"./img/2nd_past.jpg",
+		"pict1":"./img/2nd_past.jpg",
+		"pict2":"./img/2nd_present.jpg",
 		"cols":3,
 		"rows":2,
 		"startX":300,
@@ -317,8 +409,9 @@ button:active{
 </div><!-- press-panel終了 -->
 
 <div id="title-panel">
+	<!-- タイトル画像 -->
     <img src="./img/title.png" alt="" id="title-image">
-    <button id="start-game-btn" class="modal-button primary">ゲーム開始</button>
+    <button id="start-game-btn" class="modal-button primary">START</button>
     <div id="title-bgm-ctrl">
         <span class="label-text">♪</span>
         <label class="switch">
@@ -332,11 +425,12 @@ button:active{
 <div id="game">
 <div id="statusBar">
     <span id="statusText"></span>
-    <button id="backBtn" style="float:right;display:none;">戻る</button>
+    <button id="backBtn" style="float:right;display:none;">Back</button>
 </div>
 
 <div id="left">
 <div id="logoBox">
+	<!-- ロゴ画像 -->
     <img id="gameLogo" src="./img/logo.png" alt="TimeWiper">
 </div>
 <div id="timeBox">
@@ -357,8 +451,8 @@ button:active{
 
 <div id="right">
 	<div id="loadButtons">
-		<button id="loadPastBtn">過去LOAD</button>
-		<button id="loadPresentBtn">現在LOAD</button>
+		<button id="loadPict1Btn">📂Pict1</button>
+		<button id="loadPict2Btn">📂Pict2</button>
 	</div>
 	<!-- mp4動画このゲームについてはAndroid版Firefox非対応 -->
 	<input id="filePicker" type="file" accept=".png,.jpg,.jpeg,.gif,.mp4,.webm" style="display:none">
@@ -375,7 +469,7 @@ button:active{
 	</div>
 </div><!-- right終了 -->
 
-<div id="message">画像を読み込んで開始</div>
+<div id="message">Pict1,2 LOAD to START</div>
 </div><!-- game終了 -->
 
 <script>
@@ -387,7 +481,7 @@ try{
 }catch(err){
     console.error(err);
     alert(
-        "stageData のJSONにエラーがあります。\n\n"+
+        "stageData JSON Error \n\n"+
         err.message
     );
     throw err;
@@ -454,31 +548,31 @@ function playSE(src){
 
 // 画像切替専用関数
 function loadStageMedia(stageData){
-    if(bgPast instanceof HTMLVideoElement){
-        bgPast.pause();
+    if(bgPict1 instanceof HTMLVideoElement){
+        bgPict1.pause();
     }
-    bgPresent=new Image();
-    bgPresent.onload=()=>{
-        presentCtx.clearRect( 0,0,WORLD_W,WORLD_H );
-        presentCtx.drawImage( bgPresent,0,0,WORLD_W,WORLD_H );
+    bgPict2=new Image();
+    bgPict2.onload=()=>{
+        pict2Ctx.clearRect( 0,0,WORLD_W,WORLD_H );
+        pict2Ctx.drawImage( bgPict2,0,0,WORLD_W,WORLD_H );
     };
-    bgPresent.src=stageData.present;
-    if(/\.(mp4|webm)$/i.test(stageData.past)){
-        bgPast=document.createElement("video");
-        bgPast.src=stageData.past;
-        bgPast.loop=true;
-        bgPast.muted=true;
-        bgPast.playsInline=true;
-        bgPast.preload="auto";
-        bgPast.addEventListener(
+    bgPict2.src=stageData.pict2;
+    if(/\.(mp4|webm)$/i.test(stageData.pict1)){
+        bgPict1=document.createElement("video");
+        bgPict1.src=stageData.pict1;
+        bgPict1.loop=true;
+        bgPict1.muted=true;
+        bgPict1.playsInline=true;
+        bgPict1.preload="auto";
+        bgPict1.addEventListener(
             "canplay",
             ()=>{
-                bgPast.play().catch(()=>{});
+                bgPict1.play().catch(()=>{});
             }
         );
     }else{
-        bgPast=new Image();
-        bgPast.src=stageData.past;
+        bgPict1=new Image();
+        bgPict1.src=stageData.pict1;
     }
 }
 
@@ -520,7 +614,7 @@ function loadStage(stageData){
 
 	gridAlpha=0.35;
 	iconAlpha=1;
-	presentAlpha=1;
+	pict2Alpha=1;
 	endingTextIndex=0;
 
 	message.textContent="";
@@ -536,10 +630,14 @@ function loadStage(stageData){
 }
 let gameMode="stageSelect";
 let pressOpened=false;
-// ゲーム基本情報
+
+// ===== ゲームタイトル設定  =====
+// ===== Game Title Settings =====
 const GAME_TITLE="TimeWiper - 修復者 -";
-const GAME_REPAIRRATE="修復率";
-const GAME_JOINRATE="接合率";
+// ===============================
+
+const GAME_REPAIRRATE="Repair";
+const GAME_JOINRATE="Joint";
 // ステージグリッド数
 const STAGE_SELECT_COLS=2;
 const STAGE_SELECT_ROWS=2;
@@ -552,21 +650,45 @@ const VIEW_W=574,
       VIEW_H=384,
       WORLD_W=2000,
       WORLD_H=1338;
+
 // ===== ゲームバランス設定 =====
-const PLAYER_SPEED = 8; //通常の移動速度
-const DASH_MULTIPLIER = 4; //Bダッシュの倍数
-const RESTORE_BRUSH_SIZE = 130; //修復筆の太さ
-const EVENT_DISTANCE = 80; //イベント当たり判定距離
-const USE_CHARACTER_IMAGE=true; //キャラ画像ON/OFF
-const CHARACTER_SIZE=28; //キャラ画像サイズ
-const CHARACTER_DARKNESS_PER_STAGE=0.2; //ステージクリアごとの黒化量(1なら1ステージで黒化)
-const ENDING_ZOOM_TIME    = 500; //①ステージクリア時にズームして全体を見せるまでの秒数
-const ENDING_WAIT_1       = 500; //次の演出までのインターバル
-const ENDING_GRID_TIME    = 500; //②ステージクリア時にグリッド線を消すまでの秒数
-const ENDING_WAIT_2       = 500; //次の演出までのインターバル
-const ENDING_PRESENT_TIME = 2000; //③ステージクリア時に現在画像をフェードアウトする秒数
-const ENDING_WAIT_3       = 1000; //次の演出までのインターバル（メッセージ欄にendingMessage表示）
-const ENDING_TEXT_SPEED   = 70;   //endingMessageの表示速度(ms/文字)
+/*
+========================================================
+Game Balance Settings
+========================================================
+PLAYER_SPEED             : Normal movement speed
+DASH_MULTIPLIER          : Dash speed multiplier when holding B
+RESTORE_BRUSH_SIZE       : Width of the restoration brush
+EVENT_DISTANCE           : Event interaction distance
+USE_CHARACTER_IMAGE      : Enable/disable character sprite
+CHARACTER_SIZE           : Character sprite size
+CHARACTER_DARKNESS_PER_STAGE
+                         : Amount of darkening applied after each stage clear
+                           (1.0 = fully dark after one stage)
+
+ENDING_ZOOM_TIME         : ① Time required to zoom out and show the entire image after clearing a stage
+ENDING_WAIT_1            : Interval before the next ending effect
+ENDING_GRID_TIME         : ② Time required to fade out grid lines after clearing a stage
+ENDING_WAIT_2            : Interval before the next ending effect
+ENDING_PICT2_TIME        : ③ Time required to fade out the current image after clearing a stage
+ENDING_WAIT_3            : Interval before displaying endingMessage
+ENDING_TEXT_SPEED        : endingMessage display speed (ms per character)
+========================================================
+*/
+const PLAYER_SPEED = 8;                  // 通常の移動速度
+const DASH_MULTIPLIER = 4;               // Bダッシュの倍数
+const RESTORE_BRUSH_SIZE = 130;          // 修復筆の太さ
+const EVENT_DISTANCE = 80;               // イベント当たり判定距離
+const USE_CHARACTER_IMAGE=true;          // キャラ画像ON/OFF
+const CHARACTER_SIZE=28;                 // キャラ画像サイズ
+const CHARACTER_DARKNESS_PER_STAGE=0.07; // ステージクリアごとの黒化量(1なら1ステージで黒化)
+const ENDING_ZOOM_TIME    = 500;         // ①ステージクリア時にズームして全体を見せるまでの秒数
+const ENDING_WAIT_1       = 500;         //   次の演出までのインターバル
+const ENDING_GRID_TIME    = 500;         // ②ステージクリア時にグリッド線を消すまでの秒数
+const ENDING_WAIT_2       = 500;         //   次の演出までのインターバル
+const ENDING_PICT2_TIME = 2000;          // ③ステージクリア時に現在画像をフェードアウトする秒数
+const ENDING_WAIT_3       = 1000;        //   次の演出までのインターバル（メッセージ欄にendingMessage表示）
+const ENDING_TEXT_SPEED   = 70;          // endingMessageの表示速度(ms/文字)
 // ============================
 
 const clearedStages=new Set(); //ステージクリアセット
@@ -575,6 +697,8 @@ let currentPlayTime=0;
 const bestTimes={};
 
 //URLセーブ用配列格納例
+// c…クリアしたステージ（0がステージ1）
+// b…クリアしたステージごとのベストタイム（秒数。小数点以下は元々切り捨て）
 //{
 //    c:[0,2,4],
 //    b:{
@@ -663,20 +787,20 @@ function updateFixedPanels(){
     }
 }
 
-const presentCanvas=document.createElement("canvas");
-presentCanvas.width=WORLD_W;
-presentCanvas.height=WORLD_H;
-const presentCtx=presentCanvas.getContext("2d");
+const pict2Canvas=document.createElement("canvas");
+pict2Canvas.width=WORLD_W;
+pict2Canvas.height=WORLD_H;
+const pict2Ctx=pict2Canvas.getContext("2d");
 
 const ctx=cv.getContext("2d");
 const miniCtx=
  document.getElementById("miniMap")
  .getContext("2d");
 
-let loadTarget = "present";
+let loadTarget = "pict2";
 
-let bgPresent;
-let bgPast;
+let bgPict2;
+let bgPict1;
 
 //BGM管理
 const bgmPlayer=new Audio();
@@ -712,8 +836,8 @@ const playerImage=new Image();
 playerImage.src="./img/chara_white.png";
 
 // createObjectURL解放用
-let currentPastObjectURL = null;
-let currentPresentObjectURL = null;
+let currentPict1ObjectURL = null;
+let currentPict2ObjectURL = null;
 
 let zoom=1;
 let cellW=0;
@@ -725,7 +849,7 @@ let endingPhase=0;
 let endingPhaseStart=0;
 let gridAlpha=0.35;
 let iconAlpha=1;
-let presentAlpha=1;
+let pict2Alpha=1;
 let endingTextIndex=0;
 // ステージ選択関連
 let stageCursorX=0;
@@ -738,6 +862,10 @@ let rightArrowFlashUntil=0;
 stages.forEach(stage=>{
     stage.image=new Image();
     stage.image.src=stage.thumb;
+    if(stage.clearthumb){
+        stage.clearImage=new Image();
+        stage.clearImage.src=stage.clearthumb;
+    }
 });
 // ステージカーソル移動関数
 function moveStageCursor(dx,dy){
@@ -783,8 +911,7 @@ function clampStageCursorToExisting(){
 }
 
 const MIN_ZOOM = Math.min(
-  VIEW_W / WORLD_W,
-  VIEW_H / WORLD_H
+  VIEW_W / WORLD_W, VIEW_H / WORLD_H
 );
 
 let showGrid=true;
@@ -866,10 +993,7 @@ function closeEvent(){
     dialogOpen=false;
     const e=nearestEvent();
     if(
-        e &&
-        e.type==="goal" &&
-        goalUnlocked &&
-        !endingActive
+        e && e.type==="goal" && goalUnlocked && !endingActive
     ){
     	registerStageClear();
     	updateBestTime();
@@ -941,10 +1065,7 @@ cv.addEventListener("pointerdown",e=>{
 	    const thumbW=gridW/STAGE_SELECT_COLS;
 	    const thumbH=gridH/STAGE_SELECT_ROWS;
 	    if(
-	        mx>=startX &&
-	        mx<startX+gridW &&
-	        my>=startY &&
-	        my<startY+gridH
+	        mx>=startX && mx<startX+gridW && my>=startY && my<startY+gridH
 	    ){
 	        const gx=Math.floor((mx-startX)/thumbW);
 	        const gy=Math.floor((my-startY)/thumbH);
@@ -1016,11 +1137,13 @@ function drawStageSelect(){
 
 			const stageData = stages[index];
 			if(stageData){
-			    if(
-			        stageData.image.complete && stageData.image.naturalWidth>0
-			    ){
-			        ctx.drawImage( stageData.image, px+8, py+8, cellW-16, cellH-32 );
-			    }
+				const thumbImage=
+				    clearedStages.has(index)&&stageData.clearImage
+				        ? stageData.clearImage
+				        : stageData.image;
+				if(thumbImage.complete&&thumbImage.naturalWidth>0){
+				    ctx.drawImage(thumbImage,px+8,py+8,cellW-16,cellH-32);
+				}
 			    ctx.fillStyle="#fff";
 			    ctx.font="16px sans-serif";
 			    ctx.fillText( stageData.title, px+cellW/2, py+cellH-8 );
@@ -1151,10 +1274,10 @@ function updateEnding(){
         }
     }
     else if(endingPhase===5){
-        const t=Math.min(1,elapsed/ENDING_PRESENT_TIME);
-        presentAlpha=1-t;
+        const t=Math.min(1,elapsed/ENDING_PICT2_TIME);
+        pict2Alpha=1-t;
         if(t>=1){
-            presentAlpha=0;
+            pict2Alpha=0;
             endingPhase=6;
             endingPhaseStart=now;
         }
@@ -1182,7 +1305,7 @@ function updateEnding(){
 function draw(){
 	if(gameMode==="stageSelect"){
 	    drawStageSelect();
-	    statusText.textContent = "ステージを選択";
+	    statusText.textContent = "SELECT STAGE";
 	    message.textContent = "A : START";
 	    backBtn.style.display="inline-block";
 		loadButtons.style.visibility="hidden";
@@ -1221,7 +1344,7 @@ function draw(){
 	//ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
 	//現在画像
-	const source = bgPresent;
+	const source = bgPict2;
 	let mediaW = 0;
 	let mediaH = 0;
 	let canDraw = false;
@@ -1237,22 +1360,22 @@ function draw(){
 	}
 	if(canDraw){
 
-		const pastMediaW =
-		    bgPast instanceof HTMLVideoElement
-		        ? bgPast.videoWidth
-		        : bgPast.width;
+		const pict1MediaW =
+		    bgPict1 instanceof HTMLVideoElement
+		        ? bgPict1.videoWidth
+		        : bgPict1.width;
 
-		const pastMediaH =
-		    bgPast instanceof HTMLVideoElement
-		        ? bgPast.videoHeight
-		        : bgPast.height;
+		const pict1MediaH =
+		    bgPict1 instanceof HTMLVideoElement
+		        ? bgPict1.videoHeight
+		        : bgPict1.height;
 
 		ctx.drawImage(
-		    bgPast,
-		    sx/WORLD_W*pastMediaW,
-		    sy/WORLD_H*pastMediaH,
-		    srcW/WORLD_W*pastMediaW,
-		    srcH/WORLD_H*pastMediaH,
+		    bgPict1,
+		    sx/WORLD_W*pict1MediaW,
+		    sy/WORLD_H*pict1MediaH,
+		    srcW/WORLD_W*pict1MediaW,
+		    srcH/WORLD_H*pict1MediaH,
 		    0,
 		    0,
 		    VIEW_W,
@@ -1260,7 +1383,7 @@ function draw(){
 		);
 
 		ctx.save();
-		ctx.globalAlpha=presentAlpha;
+		ctx.globalAlpha=pict2Alpha;
 		if(isPanelPhase()){
 		    const panelCols=currentStage.cols;
 		    const panelRows=currentStage.rows;
@@ -1276,7 +1399,7 @@ function draw(){
 					if(fixedPanels.has(destIndex)){
 					    if(currentStage.gameType==="restoring"){
 					        ctx.drawImage(
-					            presentCanvas,
+					            pict2Canvas,
 					            srcGX*panelWorldW,
 					            srcGY*panelWorldH,
 					            panelWorldW,
@@ -1287,20 +1410,20 @@ function draw(){
 					            panelWorldH*zoom
 					        );
 					    }else{
-					        const pastMediaW=
-					            bgPast instanceof HTMLVideoElement
-					                ? bgPast.videoWidth
-					                : bgPast.width;
-					        const pastMediaH=
-					            bgPast instanceof HTMLVideoElement
-					                ? bgPast.videoHeight
-					                : bgPast.height;
+					        const pict1MediaW=
+					            bgPict1 instanceof HTMLVideoElement
+					                ? bgPict1.videoWidth
+					                : bgPict1.width;
+					        const pict1MediaH=
+					            bgPict1 instanceof HTMLVideoElement
+					                ? bgPict1.videoHeight
+					                : bgPict1.height;
 					        ctx.drawImage(
-					            bgPast,
-					            srcGX*(pastMediaW/panelCols),
-					            srcGY*(pastMediaH/panelRows),
-					            pastMediaW/panelCols,
-					            pastMediaH/panelRows,
+					            bgPict1,
+					            srcGX*(pict1MediaW/panelCols),
+					            srcGY*(pict1MediaH/panelRows),
+					            pict1MediaW/panelCols,
+					            pict1MediaH/panelRows,
 					            (gx*panelWorldW-sx)*zoom,
 					            (gy*panelWorldH-sy)*zoom,
 					            panelWorldW*zoom,
@@ -1309,7 +1432,7 @@ function draw(){
 					    }
 					}else{
 					    ctx.drawImage(
-					        presentCanvas,
+					        pict2Canvas,
 					        srcGX*panelWorldW,
 					        srcGY*panelWorldH,
 					        panelWorldW,
@@ -1323,7 +1446,7 @@ function draw(){
 		        }
 		    }
 		}else{
-		    ctx.drawImage(presentCanvas,sx,sy,srcW,srcH,0,0,VIEW_W,VIEW_H);
+		    ctx.drawImage(pict2Canvas,sx,sy,srcW,srcH,0,0,VIEW_W,VIEW_H);
 		}
 		ctx.restore();
 	}else{
@@ -1494,12 +1617,12 @@ function draw(){
 	        : "BEST "+formatTime(bestTime);
 	if(!endingActive){
 	    if(isPanelPhase()){
-	        message.textContent = "パネルを交換して修復しよう";
+	        message.textContent = "Swap panels to fix the picture.";
 	    }else{
 	        message.textContent=
 	            goalUnlocked
-	              ? "★ ゴール解放！"
-	              : "石碑を調べながら塗ろう";
+	              ? "★ Goal Unlocked!"
+	              : "Walk around and fix the world.";
 	    }
 	}
 }
@@ -1542,17 +1665,17 @@ function loop(){
 				
 				// panelフェーズでは軌跡を残さない
 				if(!isPanelPhase()){
-				    presentCtx.save();
-				    presentCtx.globalCompositeOperation=
+				    pict2Ctx.save();
+				    pict2Ctx.globalCompositeOperation=
 				        "destination-out";
-				    presentCtx.strokeStyle="#000";
-				    presentCtx.lineWidth=RESTORE_BRUSH_SIZE;
-				    presentCtx.lineCap="round";
-				    presentCtx.beginPath();
-				    presentCtx.moveTo(ox,oy);
-				    presentCtx.lineTo(player.x,player.y);
-				    presentCtx.stroke();
-				    presentCtx.restore();
+				    pict2Ctx.strokeStyle="#000";
+				    pict2Ctx.lineWidth=RESTORE_BRUSH_SIZE;
+				    pict2Ctx.lineCap="round";
+				    pict2Ctx.beginPath();
+				    pict2Ctx.moveTo(ox,oy);
+				    pict2Ctx.lineTo(player.x,player.y);
+				    pict2Ctx.stroke();
+				    pict2Ctx.restore();
 				}
 				// グリッド訪問処理（プレイヤーが一度でも通過したグリッドを訪問済みとして記録）
 			    markVisited();
@@ -1697,8 +1820,8 @@ backBtn.onclick=()=>{
         playTitleBGM();
         return;
     }
-    if(bgPast instanceof HTMLVideoElement){
-        bgPast.pause();
+    if(bgPict1 instanceof HTMLVideoElement){
+        bgPict1.pause();
     }
 	setTimeout(()=>{
 	    playTitleBGM();
@@ -1763,13 +1886,13 @@ btnB.addEventListener("pointercancel",()=>{
   dashActive=false;
 });
 // 画像ファイル指定
-loadPastBtn.onclick=()=>{
-    loadTarget="past";
+loadPict1Btn.onclick=()=>{
+    loadTarget="pict1";
     filePicker.click();
 };
 
-loadPresentBtn.onclick=()=>{
-    loadTarget="present";
+loadPict2Btn.onclick=()=>{
+    loadTarget="pict2";
     filePicker.click();
 };
 filePicker.onchange=e=>{
@@ -1777,20 +1900,20 @@ filePicker.onchange=e=>{
     if(!f)return;
     const url=URL.createObjectURL(f);
     // メモリ解放
-    if(loadTarget==="past"){
-	    if(currentPastObjectURL){
-	        URL.revokeObjectURL(currentPastObjectURL);
+    if(loadTarget==="pict1"){
+	    if(currentPict1ObjectURL){
+	        URL.revokeObjectURL(currentPict1ObjectURL);
 	    }
-	    currentPastObjectURL=url;
+	    currentPict1ObjectURL=url;
 	}else{
-	    if(currentPresentObjectURL){
-	        URL.revokeObjectURL(currentPresentObjectURL);
+	    if(currentPict2ObjectURL){
+	        URL.revokeObjectURL(currentPict2ObjectURL);
 	    }
-	    currentPresentObjectURL=url;
+	    currentPict2ObjectURL=url;
 	}
     
-    // 過去LOAD
-    if(loadTarget==="past"){
+    // Pict1 LOAD
+    if(loadTarget==="pict1"){
         if(/\.(mp4|webm)$/i.test(f.name)){
             const video=document.createElement("video");
             video.src=url;
@@ -1799,23 +1922,23 @@ filePicker.onchange=e=>{
             video.playsInline=true;
             video.addEventListener("loadeddata",()=>{
                 video.play().catch(()=>{});
-                bgPast=video;
+                bgPict1=video;
             });
         }else{
             const img=new Image();
             img.onload=()=>{
-                bgPast=img;
+                bgPict1=img;
             };
             img.src=url;
         }
         return;
     }
-    // 現在LOAD
+    // Pict2 LOAD
     const img=new Image();
 	img.onload=()=>{
-	    bgPresent=img;
-		presentCtx.clearRect(0,0,WORLD_W,WORLD_H);
-		presentCtx.drawImage(bgPresent,0,0,WORLD_W,WORLD_H);
+	    bgPict2=img;
+		pict2Ctx.clearRect(0,0,WORLD_W,WORLD_H);
+		pict2Ctx.drawImage(bgPict2,0,0,WORLD_W,WORLD_H);
 	};
     img.src=url;
 };
