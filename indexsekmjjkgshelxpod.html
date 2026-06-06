@@ -2,7 +2,7 @@
 <html lang="ja">
 <!-- TimeWiper - タイムワイパー・修復者 - -->
 <!-- powered by Picture Grid Engine Ver 1.0 -->
-<!-- ver20260605 -->
+<!-- ver20260607 -->
 
 <!-- Copyright (C) 2026 Factory Digital Entertainment and Hironov Yazaki. -->
 <!-- TimeWiper and all music used in this game are protected by copyright. -->
@@ -209,7 +209,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 	    "dashMultiplier":5,
 	    "restoreBrushSize":400,
 	    "eventDistance":120,
-	    "characterSize":100,
+	    "characterSize":70,
 		"bgm":"./bgm/bgm_s1.mp3",
 		"thumb":"./img/t01_pre.jpg",
 		"clearthumb":"./img/t01_clear.jpg",
@@ -220,8 +220,8 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"startX":200,
 		"startY":200,
 		"zoom":0.287,
-		"clearRate":90,
-		"goalCondition":"Wipe the rust. Repair 90%, Pin★ Unlock.",
+		"clearRate":80,
+		"goalCondition":"Wipe the rust. Repair 80%, Pin★ Unlock.",
 		"endingMessage":"Let's get to work!",
 		"events":[
 		    {"id":"goal","x":1790,"y":730,"type":"goal","title":"Pin","text":"Congratulations on restoring the sign! "}
@@ -294,7 +294,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 	    "playerSpeed":2,
 	    "dashMultiplier":4,
 	    "restoreBrushSize":70,
-	    "eventDistance":50,
+	    "eventDistance":70,
 	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t05_pre.jpg",
@@ -370,7 +370,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"goalCondition":"Expand the sky.",
 		"endingMessage":"The sky has become a little wider.",
 		"events":[
-			{"id":"goal","x":1000,"y":700,"type":"goal","title":"Goal","text":"Look! Up in the sky! It's a bird! It's a plane!"}
+			{"id":"goal","x":1124,"y":613,"type":"goal","title":"Goal","text":"Look! Up in the sky! It's a bird! It's a plane!"}
 		]
 	},
 	{
@@ -399,8 +399,13 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"Lagoon",
-		"gameType":"panel",
+		"title":"10. Lagoon",
+		"gameType":"restoring",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":200,
+	    "eventDistance":100,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t10_pre.jpg",
 		"clearthumb":"./img/t10_clear.jpg",
@@ -408,29 +413,40 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"pict2":"./img/s10_r2_lagoon.jpg",
 		"cols":7,
 		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"startX":1021,
+		"startY":829,
+		"zoom":0.7,
+		"clearRate":95,
+		"goalCondition":"Peace on the island.",
+		"endingMessage":"The island has regained its original form.",
+		"events":[
+			{"id":"goal","x":957,"y":407,"type":"goal","title":"Goal","text":"The fish have returned!"}
+		]
 	},
 	{
-		"title":"Waterfall",
-		"gameType":"panel",
+		"title":"11. Waterfall",
+		"gameType":"restoring",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":120,
+	    "eventDistance":60,
+	    "characterSize":40,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t11_pre.jpg",
 		"clearthumb":"./img/t11_clear.jpg",
 		"pict1":"./img/s11_r1_waterfall.jpg",
 		"pict2":"./img/s11_r2_waterfall.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
+		"cols":6,
+		"rows":4,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"clearRate":90,
+		"goalCondition":"Let's restore the flow of water. 90%, ★ Unlock.",
+		"endingMessage":"The waterfall once again nourished the earth.",
+		"events":[
+			{"id":"goal","x":1918,"y":847,"type":"goal","title":"Deck","text":"The water splashes all the way here!"}
+		]
 	},
 	{
 		"title":"Oasis",
@@ -796,6 +812,9 @@ function loadStage(stageData){
     currentStage=stageData;
     player.x=currentStage.startX;
     player.y=currentStage.startY;
+    playerFacing="idle";
+	walkFrame=0;
+	walkTimer=0;
     zoom=currentStage.zoom;
     cellW=WORLD_W/currentStage.cols;
     cellH=WORLD_H/currentStage.rows;
@@ -848,38 +867,38 @@ const VIEW_W=574,
       WORLD_H=1338;
 
 // ===== ゲームバランス設定 =====
-/*
-========================================================
-Game Balance Settings
-========================================================
-PLAYER_SPEED             : Normal movement speed
-DASH_MULTIPLIER          : Dash speed multiplier when holding B
-RESTORE_BRUSH_SIZE       : Width of the restoration brush
-EVENT_DISTANCE           : Event interaction distance
-USE_CHARACTER_IMAGE      : Enable/disable character sprite
-CHARACTER_SIZE           : Character sprite size
+//
+//========================================================
+//Game Balance Settings
+//========================================================
+//PLAYER_SPEED             : Normal movement speed
+//DASH_MULTIPLIER          : Dash speed multiplier when holding B
+//RESTORE_BRUSH_SIZE       : Width of the restoration brush
+//EVENT_DISTANCE           : Event interaction distance
+//USE_CHARACTER_IMAGE      : Enable/disable character sprite
+//CHARACTER_SIZE           : Character sprite size
 // The character movement settings described above can be arbitrarily prioritized in the stage data JSON.
 // If no settings are made, or if you return to the stage selection screen, the default values ​​will be used.
-
-CHARACTER_DARKNESS_PER_STAGE
-                         : Amount of darkening applied after each stage clear
-                           (1.0 = fully dark after one stage)
-
-ENDING_ZOOM_TIME         : ① Time required to zoom out and show the entire image after clearing a stage
-ENDING_WAIT_1            : Interval before the next ending effect
-ENDING_GRID_TIME         : ② Time required to fade out grid lines after clearing a stage
-ENDING_WAIT_2            : Interval before the next ending effect
-ENDING_PICT2_TIME        : ③ Time required to fade out the current image after clearing a stage
-ENDING_WAIT_3            : Interval before displaying endingMessage
-ENDING_TEXT_SPEED        : endingMessage display speed (ms per character)
-========================================================
-*/
-const PLAYER_SPEED = 8;                  // Normal movement speed 通常の移動速度
-const DASH_MULTIPLIER = 4;               // B-dash speed multiplier Bダッシュの倍数
-const RESTORE_BRUSH_SIZE = 130;          // Restoration brush size 修復筆の太さ
-const EVENT_DISTANCE = 80;               // Event interaction distance イベント当たり判定距離
-const USE_CHARACTER_IMAGE=true;          // Enable/disable character image キャラ画像ON/OFF
-const CHARACTER_SIZE=28;                 // Character image size キャラ画像サイズ
+//
+//CHARACTER_DARKNESS_PER_STAGE
+//                         : Amount of darkening applied after each stage clear
+//                           (1.0 = fully dark after one stage)
+//
+//ENDING_ZOOM_TIME         : ① Time required to zoom out and show the entire image after clearing a stage
+//ENDING_WAIT_1            : Interval before the next ending effect
+//ENDING_GRID_TIME         : ② Time required to fade out grid lines after clearing a stage
+//ENDING_WAIT_2            : Interval before the next ending effect
+//ENDING_PICT2_TIME        : ③ Time required to fade out the current image after clearing a stage
+//ENDING_WAIT_3            : Interval before displaying endingMessage
+//ENDING_TEXT_SPEED        : endingMessage display speed (ms per character)
+//========================================================
+//
+const PLAYER_SPEED        = 8;           // Normal movement speed 通常の移動速度
+const DASH_MULTIPLIER     = 4;           // B-dash speed multiplier Bダッシュの倍数
+const RESTORE_BRUSH_SIZE  = 130;         // Restoration brush size 修復筆の太さ
+const EVENT_DISTANCE      = 80;          // Event interaction distance イベント当たり判定距離
+const USE_CHARACTER_IMAGE = true;        // Enable/disable character image キャラ画像ON/OFF
+const CHARACTER_SIZE      = 28;          // Character image size キャラ画像サイズ
 // 上記のキャラ動作設定は以下の変数にて、ステージデータJSONで任意に優先設定可。設定がない場合＆ステージ選択画面に戻ると、上記の基本値となる。
 // The character behavior settings above can be overridden per stage
 // using the following variables in the stage data JSON.
@@ -892,7 +911,10 @@ let eventDistance=EVENT_DISTANCE;
 let useCharacterImage=USE_CHARACTER_IMAGE;
 let characterSize=CHARACTER_SIZE;
 
-const CHARACTER_DARKNESS_PER_STAGE=0.07; // ステージクリアごとの黒化量(1なら1ステージで黒化)
+const CHARACTER_DARKNESS_PER_STAGE=0.97; // ステージクリアごとの黒化量(MAX1。1なら1ステージで黒化)
+const WALK_ANIM_INTERVAL  = 90;          // 歩行アニメ切替間隔(ms)
+const PLAYER_LIGHT_RADIUS = 35;          // 足元ライトアップの半径
+const PLAYER_LIGHT_ALPHA  = 0.60;        // 足元ライトアップの明るさ
 const ENDING_ZOOM_TIME    = 500;         // ①ステージクリア時にズームして全体を見せるまでの秒数
 const ENDING_WAIT_1       = 500;         //   次の演出までのインターバル
 const ENDING_GRID_TIME    = 500;         // ②ステージクリア時にグリッド線を消すまでの秒数
@@ -1043,8 +1065,19 @@ const SE_PANEL="./bgm/effect_panel.mp3";
 let soundEnabled = document.getElementById("title-btn-bgm").checked;
 
 // キャラ画像読み込み
-const playerImage=new Image();
-playerImage.src="./img/chara_white.png";
+const playerImages={
+    idle:new Image(),
+    updown1:new Image(),
+    updown2:new Image(),
+    left:new Image(),
+    right:new Image()
+};
+
+playerImages.idle.src="./img/idle.png";
+playerImages.updown1.src="./img/updown_1.png";
+playerImages.updown2.src="./img/updown_2.png";
+playerImages.left.src="./img/left.png";
+playerImages.right.src="./img/right.png";
 // ロック用サムネイル
 const lockImage=new Image();
 lockImage.src="./img/ico_lock.png";
@@ -1056,6 +1089,9 @@ let currentPict2ObjectURL = null;
 let zoom=1;
 let cellW=0;
 let cellH=0;
+let playerFacing="idle";
+let walkFrame=0;
+let walkTimer=0;
 
 // ステージクリア時関連
 let endingActive=false;
@@ -1834,17 +1870,51 @@ function draw(){
 	ctx.save();
 	ctx.globalAlpha=iconAlpha;
 
+	// 足元ライト
+	const lightRadius=PLAYER_LIGHT_RADIUS;
+	const light=ctx.createRadialGradient(px,py,0,px,py,lightRadius);
+	light.addColorStop(0,`rgba(255,255,255,${PLAYER_LIGHT_ALPHA})`); //ライトの明るさ
+	light.addColorStop(1,"rgba(255,255,255,0)");
+	ctx.fillStyle=light;
+	ctx.beginPath();
+	ctx.arc(px,py,lightRadius,0,Math.PI*2);
+	ctx.fill();
+
 	// キャラ画像が存在しなくても動作する
+	let currentSprite=playerImages.idle;
+	if(playerFacing==="left"){
+	    currentSprite=playerImages.left;
+	}
+	else if(playerFacing==="right"){
+	    currentSprite=playerImages.right;
+	}
+	else if(playerFacing==="updown"){
+	    currentSprite=
+	        walkFrame===0
+	            ? playerImages.updown1
+	            : playerImages.updown2;
+	}
 	if(
 	    useCharacterImage
 	    &&
-	    playerImage.complete
+	    currentSprite.complete
 	    &&
-	    playerImage.naturalWidth>0
+	    currentSprite.naturalWidth>0
 	){
-	    const darkness=Math.min(1,clearedStages.size*CHARACTER_DARKNESS_PER_STAGE);
+	    const darkness=Math.min(
+	        1,
+	        clearedStages.size*CHARACTER_DARKNESS_PER_STAGE
+	    );
+
 	    ctx.filter=`brightness(${1-darkness})`;
-	    ctx.drawImage(playerImage,px-characterSize/2,py-characterSize/2,characterSize,characterSize);
+
+	    ctx.drawImage(
+	        currentSprite,
+	        px-characterSize/2,
+	        py-characterSize/2,
+	        characterSize,
+	        characterSize
+	    );
 	    ctx.filter="none";
 	}else{
 		// キャラ画像が存在しない場合は赤い●記号をキャラの代わりとする
@@ -1855,13 +1925,11 @@ function draw(){
 	}
 
 	ctx.restore();
-	
 	const rate=paintRate();
 	const rateLabel=
     isPanelPhase()
         ? GAME_JOINRATE
         : GAME_REPAIRRATE;
-
 	if(
 	    (
 	        currentStage.gameType==="paint"
@@ -1922,46 +1990,57 @@ function loop(){
 		  if(keys.arrowleft)dx--;
 		  if(keys.arrowright)dx++;
 
-		  if(dx||dy){
-			    const len=Math.hypot(dx,dy);
-			    dx/=len; dy/=len;
-			    const ox=player.x, oy=player.y;
-				// 移動速度
-				const currentSpeed=
-				  playerSpeed *
-				  (dashActive ? dashMultiplier : 1);
-				player.x=Math.max(
-				  0,
-				  Math.min(
-				    WORLD_W,
-				    player.x+dx*currentSpeed
-				  )
-				);
-				player.y=Math.max(
-				  0,
-				  Math.min(
-				    WORLD_H,
-				    player.y+dy*currentSpeed
-				  )
-				);
-				
-				// panelフェーズでは軌跡を残さない
-				if(!isPanelPhase()){
-				    pict2Ctx.save();
-				    pict2Ctx.globalCompositeOperation=
-				        "destination-out";
-				    pict2Ctx.strokeStyle="#000";
-				    pict2Ctx.lineWidth=restoreBrushSize;
-				    pict2Ctx.lineCap="round";
-				    pict2Ctx.beginPath();
-				    pict2Ctx.moveTo(ox,oy);
-				    pict2Ctx.lineTo(player.x,player.y);
-				    pict2Ctx.stroke();
-				    pict2Ctx.restore();
-				}
-				// グリッド訪問処理（プレイヤーが一度でも通過したグリッドを訪問済みとして記録）
-			    markVisited();
-		  }
+		if(dx||dy){
+		    const len=Math.hypot(dx,dy);
+		    dx/=len;
+		    dy/=len;
+		    if(Math.abs(dx)>Math.abs(dy)){
+		        playerFacing=dx<0?"left":"right";
+		    }else{
+		        playerFacing="updown";
+		    }
+		    walkTimer+=16;
+		    if(walkTimer>=WALK_ANIM_INTERVAL){
+		        walkTimer=0;
+		        walkFrame=1-walkFrame;
+		    }
+		    const ox=player.x;
+		    const oy=player.y;
+		    const currentSpeed=
+		      playerSpeed*
+		      (dashActive?dashMultiplier:1);
+		    player.x=Math.max(
+		      0,
+		      Math.min(
+		        WORLD_W,
+		        player.x+dx*currentSpeed
+		      )
+		    );
+		    player.y=Math.max(
+		      0,
+		      Math.min(
+		        WORLD_H,
+		        player.y+dy*currentSpeed
+		      )
+		    );
+		    if(!isPanelPhase()){
+		        pict2Ctx.save();
+		        pict2Ctx.globalCompositeOperation="destination-out";
+		        pict2Ctx.strokeStyle="#000";
+		        pict2Ctx.lineWidth=restoreBrushSize;
+		        pict2Ctx.lineCap="round";
+		        pict2Ctx.beginPath();
+		        pict2Ctx.moveTo(ox,oy);
+		        pict2Ctx.lineTo(player.x,player.y);
+		        pict2Ctx.stroke();
+		        pict2Ctx.restore();
+		    }
+		    markVisited();
+		}else{
+		    playerFacing="idle";
+		    walkFrame=0;
+		    walkTimer=0;
+		}
 	}
 
 	if(
