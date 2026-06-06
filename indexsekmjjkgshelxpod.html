@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <!-- TimeWiper - タイムワイパー・修復者 - -->
-<!-- powered by Picture Grid Engine Ver 0.9 -->
-<!-- ver20260604 -->
+<!-- powered by Picture Grid Engine Ver 1.0 -->
+<!-- ver20260605 -->
 
 <!-- Copyright (C) 2026 Factory Digital Entertainment and Hironov Yazaki. -->
 <!-- TimeWiper and all music used in this game are protected by copyright. -->
@@ -104,6 +104,13 @@ gameType       : ゲームモード
                  panel     = パネル接合
                  paint     = 塗り絵修復
                  restoring = 接合→修復の2段階
+unlockTerm     : ステージ解放条件（省略可）
+                 指定したステージ番号をすべてクリアすると解放
+                 （※プログラムの都合上、実際のステージより1つ少ない数を指定してください）
+                 0-5       = ステージ1～6を全クリア
+                 0,2,7     = ステージ1、3、8を全クリア
+                 0-3,7,10-12 = 範囲と個別指定の組み合わせ
+unlockMsg      : 未解放時にサムネイル下へ表示するメッセージ
 bgm            : ステージBGM
 bgm2           : restoringモードでの Phase2(paint相当時)用BGM
 thumb          : ステージ選択画面でのサムネイル
@@ -122,6 +129,14 @@ clearRate      : ゴール解放条件を100までの整数で指定。低すぎ
 goalCondition  : 画面上のミッション表示文字列
 endingMessage  : 画面下のステージクリア時メッセージ
 
+以下のキャラ動作設定はステージごとに任意で設定可。設定がない場合＆ステージ選択画面に戻ると、以下の基本値となる。
+playerSpeed = 8;                  // 通常の移動速度
+dashMultiplier = 4;               // Bダッシュの倍数
+restoreBrushSize = 130;          // 修復筆の太さ
+eventDistance = 80;               // イベント当たり判定距離
+useCharacterImage=true;          // キャラ画像ON/OFF
+characterSize=28;                 // キャラ画像サイズ
+
 events         : イベント一覧
 --------------------------------------------------------
 id                : イベント識別子
@@ -139,6 +154,13 @@ Stage Data Definition
 ========================================================
 title             : Stage title
 gameType          : Game mode (panel = Panel Assembly / paint = Image Restoration / restoring = Assembly → Restoration)
+unlockTerm        : Stage unlock condition (optional)
+                    The stage becomes available after all specified stages are cleared.
+                    (Note: Due to internal indexing, specify a value that is one less than the actual stage number.)
+                    0-5         = Clear stages 1 through 6
+                    0,2,7       = Clear stages 1, 3, and 8
+                    0-3,7,10-12 = Combination of ranges and individual stages
+unlockMsg         : Message displayed below the thumbnail while the stage is locked
 bgm               : Stage BGM
 bgm2              : BGM used during Phase 2 in restoring mode
 thumb             : Thumbnail shown on the stage select screen
@@ -157,6 +179,17 @@ clearRate         : Goal unlock condition (0–100)
 goalCondition     : Mission text displayed on screen
 endingMessage     : Message shown when the stage is cleared
 
+The following character behavior settings can be configured individually for each stage.
+If a setting is not specified, or when returning to the Stage Select screen,
+the default values below will be applied.
+
+playerSpeed = 8;           // Normal movement speed
+dashMultiplier = 4;        // B-dash speed multiplier
+restoreBrushSize = 130;    // Restoration brush size
+eventDistance = 80;        // Event interaction distance
+useCharacterImage = true;  // Enable/disable character image
+characterSize = 28;        // Character image size
+
 events            : Event list
 --------------------------------------------------------
 id                : Event identifier
@@ -170,46 +203,52 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 <script id="stageData" type="application/json">
 [
 	{
-		"title":"TimeWiper",
+		"title":"1. My Badge",
 		"gameType":"paint",
+	    "playerSpeed":4,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":400,
+	    "eventDistance":120,
+	    "characterSize":100,
 		"bgm":"./bgm/bgm_s1.mp3",
 		"thumb":"./img/t01_pre.jpg",
 		"clearthumb":"./img/t01_clear.jpg",
 		"pict1":"./img/s01_r1_title.jpg",
 		"pict2":"./img/s01_r2_title.jpg",
-		"cols":16,
-		"rows":12,
-		"startX":100,
-		"startY":69,
-		"zoom":1,
-		"clearRate":60,
-		"goalCondition":"修復率60%以上でゴール解放",
-		"endingMessage":"世界は、本来の姿を取り戻した。",
+		"cols":5,
+		"rows":5,
+		"startX":200,
+		"startY":200,
+		"zoom":0.287,
+		"clearRate":90,
+		"goalCondition":"Wipe the rust. Repair 90%, Pin★ Unlock.",
+		"endingMessage":"Let's get to work!",
 		"events":[
-		    {"id":"stone1","x":900,"y":700,"title":"石碑①","text":"古代の記録だ。南へ進め。"},
-		    {"id":"stone2","x":1300,"y":900,"title":"石碑②","text":"さらに南へ進め。"},
-		    {"id":"stone3","x":1400,"y":800,"hiddenUntilRepair":true,"title":"石碑③","text":"落石注意！"},
-		    {"id":"goal","x":1700,"y":1100,"type":"goal","title":"ゴール","text":"ステージクリア！"}
+		    {"id":"goal","x":1790,"y":730,"type":"goal","title":"Pin","text":"Congratulations on restoring the sign! "}
 		]
 	},
 	{
-		"title":"Story",
+		"title":"2. My Rules",
 		"gameType":"panel",
+	    "playerSpeed":4,
+	    "dashMultiplier":2,
+	    "restoreBrushSize":130,
+		"characterSize":40,
 		"thumb":"./img/t02_pre.jpg",
 		"clearthumb":"./img/t02_clear.jpg",
 		"pict1":"./img/s02_r1_japanese.jpg",
 		"pict2":"./img/s02_r2_english.jpg",
-		"cols":3,
-		"rows":2,
-		"startX":300,
-		"startY":300,
+		"cols":4,
+		"rows":4,
+		"startX":900,
+		"startY":600,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Piece together parts of the Rules in mind.",
+		"endingMessage":"I repeated my Rules. I'm perfect."
 	},
 	{
-		"title":"Prologue",
+		"title":"3. Museum",
 		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"bgm2":"./bgm/bgm_s4.mp3",
@@ -217,91 +256,106 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"clearthumb":"./img/t03_clear.jpg",
 		"pict1":"./img/s03_r1_sunny.jpg",
 		"pict2":"./img/s03_r2_rain.jpg",
-		"cols":3,
-		"rows":3,
-		"startX":500,
-		"startY":400,
+		"cols":5,
+		"rows":5,
+		"startX":300,
+		"startY":900,
 		"zoom":0.285,
 		"clearRate":95,
-		"goalCondition":"接合完了後、修復率95%以上でゴール解放",
-		"endingMessage":"庭園は、本来の姿を取り戻した。",
+		"goalCondition":"Joint & Rain Wipe. Repair 95%, Gate★ Unlock.",
+		"endingMessage":"The rain stopped, and the deserted art museum opened.",
 		"events":[
-			{"id":"stone1","x":500,"y":500,"title":"テスト石碑","text":"第3ステージです。"},
-			{"id":"stone2","x":800,"y":500,"hiddenUntilRepair":true,"title":"テスト石碑","text":"隠しイベントです。"},
-			{"id":"goal","x":1200,"y":700,"type":"goal","title":"ゴール","text":"クリア！"}
+			{"id":"goal","x":721,"y":985,"type":"goal","title":"Gate","text":"Good morning! Welcome to Museum."}
 		]
 	},
 	{
-		"title":"Flower",
-		"gameType":"panel",
+		"title":"4. Flower",
+		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t04_pre.jpg",
 		"clearthumb":"./img/t04_clear.jpg",
 		"pict1":"./img/s04_r1_flower.jpg",
 		"pict2":"./img/s04_r2_flower.jpg",
-		"cols":7,
+		"cols":6,
 		"rows":5,
 		"startX":300,
 		"startY":300,
 		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"clearRate":80,
+		"goalCondition":"Repair the frame and make  bloom. 80%, Gole★ Unlock.",
+		"endingMessage":"The flowers bloomed, delighting the visitors.",
+		"events":[
+			{"id":"goal","x":1092,"y":525,"type":"goal","title":"Gole","text":"Even buds are beautiful flowers."}
+		]
 	},
 	{
-		"title":"Garden",
-		"gameType":"panel",
+		"title":"5. Garden",
+		"gameType":"paint",
+	    "playerSpeed":2,
+	    "dashMultiplier":4,
+	    "restoreBrushSize":70,
+	    "eventDistance":50,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t05_pre.jpg",
 		"clearthumb":"./img/t05_clear.jpg",
 		"pict1":"./img/s05_r1_garden.jpg",
 		"pict2":"./img/s05_r2_garden.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"cols":20,
+		"rows":15,
+		"startX":879,
+		"startY":1275,
+		"zoom":0.6,
+		"clearRate":95,
+		"goalCondition":"Repair the Garden. 95%, Tea Room★ Unlock.",
+		"endingMessage":"The garden has been restored to its original state.",
+		"events":[
+			{"id":"goal","x":724,"y":570,"type":"goal","title":"Tea Room","text":"Thank you. Please have some tea."}
+		]
 	},
 	{
-		"title":"Lighthouse 1",
+		"title":"6. Lighthouse 1",
 		"gameType":"panel",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t06_pre.jpg",
 		"clearthumb":"./img/t06_clear.jpg",
 		"pict1":"./img/s06_r1_lighthouse.jpg",
 		"pict2":"./img/s06_r2_lighthouse.jpg",
-		"cols":7,
+		"cols":5,
 		"rows":5,
-		"startX":300,
-		"startY":300,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Check the ground and make the lighthouse bigger.",
+		"endingMessage":"The lighthouse, which also served as a shop, proved to be very popular."
 	},
 	{
-		"title":"Lighthouse 2",
-		"gameType":"panel",
+		"title":"7. Lighthouse 2",
+		"gameType":"restoring",
+		"unlockTerm":"5",
+		"unlockMsg":"Need #6 Clear!",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t07_pre.jpg",
 		"clearthumb":"./img/t07_clear.jpg",
 		"pict1":"./img/s07_r1_lighthouse2.jpg",
 		"pict2":"./img/s07_r2_lighthouse2.jpg",
-		"cols":7,
+		"cols":6,
 		"rows":5,
-		"startX":300,
-		"startY":300,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Light the lamp.",
+		"endingMessage":"The lighthouse began to illuminate the horizon.",
+		"events":[
+		    {"id":"stone1","x":215,"y":1103,"title":"Announce","text":"This lighthouse was 3 meters tall before it was rebuilt."},
+			{"id":"goal","x":1026,"y":323,"type":"goal","title":"Announce","text":"Enjoy the night view from the observation deck."}
+		]
 	},
 	{
-		"title":"Skyscraper",
-		"gameType":"panel",
+		"title":"8. Skyscraper",
+		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t08_pre.jpg",
 		"clearthumb":"./img/t08_clear.jpg",
@@ -309,29 +363,40 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"pict2":"./img/s08_r2_skyscraper.jpg",
 		"cols":7,
 		"rows":5,
-		"startX":300,
-		"startY":300,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Expand the sky.",
+		"endingMessage":"The sky has become a little wider.",
+		"events":[
+			{"id":"goal","x":1000,"y":700,"type":"goal","title":"Goal","text":"Look! Up in the sky! It's a bird! It's a plane!"}
+		]
 	},
 	{
-		"title":"Bridge",
-		"gameType":"panel",
+		"title":"9. Bridge",
+		"gameType":"paint",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":70,
+	    "eventDistance":60,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t09_pre.jpg",
 		"clearthumb":"./img/t09_clear.jpg",
 		"pict1":"./img/s09_r1_bridge.jpg",
 		"pict2":"./img/s09_r2_bridge.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"cols":30,
+		"rows":20,
+		"startX":1567,
+		"startY":1300,
+		"zoom":0.6,
+		"clearRate":80,
+		"goalCondition":"Reduce traffic volume. 80%, ★ Unlock.",
+		"endingMessage":"The noise has also decreased.",
+		"events":[
+			{"id":"goal","x":448,"y":583,"type":"goal","title":"Jogging Runner","text":"Thank you. Easy to run."}
+		]
 	},
 	{
 		"title":"Lagoon",
@@ -716,6 +781,14 @@ function updateBestTime(){
 
 function loadStage(stageData){
 	console.log("loadStage",stageData);
+
+	playerSpeed       = stageData.playerSpeed       ?? PLAYER_SPEED;
+	dashMultiplier    = stageData.dashMultiplier    ?? DASH_MULTIPLIER;
+	restoreBrushSize  = stageData.restoreBrushSize  ?? RESTORE_BRUSH_SIZE;
+	eventDistance     = stageData.eventDistance     ?? EVENT_DISTANCE;
+	useCharacterImage = stageData.useCharacterImage ?? USE_CHARACTER_IMAGE;
+	characterSize     = stageData.characterSize     ?? CHARACTER_SIZE;
+
 	loadStageMedia(stageData);
 	playStageBGM(stageData);
 	stageStartTime=performance.now();
@@ -785,6 +858,9 @@ RESTORE_BRUSH_SIZE       : Width of the restoration brush
 EVENT_DISTANCE           : Event interaction distance
 USE_CHARACTER_IMAGE      : Enable/disable character sprite
 CHARACTER_SIZE           : Character sprite size
+// The character movement settings described above can be arbitrarily prioritized in the stage data JSON.
+// If no settings are made, or if you return to the stage selection screen, the default values ​​will be used.
+
 CHARACTER_DARKNESS_PER_STAGE
                          : Amount of darkening applied after each stage clear
                            (1.0 = fully dark after one stage)
@@ -798,12 +874,24 @@ ENDING_WAIT_3            : Interval before displaying endingMessage
 ENDING_TEXT_SPEED        : endingMessage display speed (ms per character)
 ========================================================
 */
-const PLAYER_SPEED = 8;                  // 通常の移動速度
-const DASH_MULTIPLIER = 4;               // Bダッシュの倍数
-const RESTORE_BRUSH_SIZE = 130;          // 修復筆の太さ
-const EVENT_DISTANCE = 80;               // イベント当たり判定距離
-const USE_CHARACTER_IMAGE=true;          // キャラ画像ON/OFF
-const CHARACTER_SIZE=28;                 // キャラ画像サイズ
+const PLAYER_SPEED = 8;                  // Normal movement speed 通常の移動速度
+const DASH_MULTIPLIER = 4;               // B-dash speed multiplier Bダッシュの倍数
+const RESTORE_BRUSH_SIZE = 130;          // Restoration brush size 修復筆の太さ
+const EVENT_DISTANCE = 80;               // Event interaction distance イベント当たり判定距離
+const USE_CHARACTER_IMAGE=true;          // Enable/disable character image キャラ画像ON/OFF
+const CHARACTER_SIZE=28;                 // Character image size キャラ画像サイズ
+// 上記のキャラ動作設定は以下の変数にて、ステージデータJSONで任意に優先設定可。設定がない場合＆ステージ選択画面に戻ると、上記の基本値となる。
+// The character behavior settings above can be overridden per stage
+// using the following variables in the stage data JSON.
+// If a variable is not specified, or when returning to the Stage Select screen,
+// the default values above will be restored.
+let playerSpeed=PLAYER_SPEED;
+let dashMultiplier=DASH_MULTIPLIER;
+let restoreBrushSize=RESTORE_BRUSH_SIZE;
+let eventDistance=EVENT_DISTANCE;
+let useCharacterImage=USE_CHARACTER_IMAGE;
+let characterSize=CHARACTER_SIZE;
+
 const CHARACTER_DARKNESS_PER_STAGE=0.07; // ステージクリアごとの黒化量(1なら1ステージで黒化)
 const ENDING_ZOOM_TIME    = 500;         // ①ステージクリア時にズームして全体を見せるまでの秒数
 const ENDING_WAIT_1       = 500;         //   次の演出までのインターバル
@@ -957,6 +1045,9 @@ let soundEnabled = document.getElementById("title-btn-bgm").checked;
 // キャラ画像読み込み
 const playerImage=new Image();
 playerImage.src="./img/chara_white.png";
+// ロック用サムネイル
+const lockImage=new Image();
+lockImage.src="./img/ico_lock.png";
 
 // createObjectURL解放用
 let currentPict1ObjectURL = null;
@@ -1044,6 +1135,30 @@ let padDX=0,padDY=0;
 let dialogOpen=false;
 const keys={};
 
+function isStageUnlocked(stage){
+    if(!stage.unlockTerm){
+        return true;
+    }
+    const required=new Set();
+    stage.unlockTerm.split(",").forEach(part=>{
+        part=part.trim();
+        if(part.includes("-")){
+            const [start,end]=part.split("-").map(Number);
+            for(let i=start;i<=end;i++){
+                required.add(i);
+            }
+        }else{
+            required.add(Number(part));
+        }
+    });
+    for(const index of required){
+        if(!clearedStages.has(index)){
+            return false;
+        }
+    }
+    return true;
+}
+
 function formatTime(seconds){
     const m=Math.floor(seconds/60);
     const s=Math.floor(seconds%60);
@@ -1091,7 +1206,7 @@ function paintRate(){
 
 // イベント処理
 function nearestEvent(){
-	let best=null,d=EVENT_DISTANCE;
+	let best=null,d=eventDistance;
 	for(const e of events){
 	     if(!isEventVisible(e)) continue;
 	     if(e.type==="goal" && !goalUnlocked) continue;
@@ -1197,7 +1312,7 @@ cv.addEventListener("pointerdown",e=>{
 	        const index=pageOffset+gy*STAGE_SELECT_COLS+gx;
 
 	        const stageData=stages[index];
-	        if(stageData){
+	        if( stageData && isStageUnlocked(stageData) ){
 	            playSE(SE_GO);
 	            currentStageIndex=index;
 	            loadStage(stageData);
@@ -1260,17 +1375,36 @@ function drawStageSelect(){
 
 			const stageData = stages[index];
 			if(stageData){
-				const thumbImage=
-				    clearedStages.has(index)&&stageData.clearImage
-				        ? stageData.clearImage
-				        : stageData.image;
-				if(thumbImage.complete&&thumbImage.naturalWidth>0){
-				    ctx.drawImage(thumbImage,px+8,py+8,cellW-16,cellH-32);
+			    const unlocked = isStageUnlocked(stageData);
+				if(unlocked){
+				    const thumbImage=
+				        clearedStages.has(index)&&stageData.clearImage
+				            ? stageData.clearImage
+				            : stageData.image;
+				    if(
+				        thumbImage.complete &&
+				        thumbImage.naturalWidth>0
+				    ){
+				        ctx.drawImage(thumbImage,px+8,py+8,cellW-16,cellH-32
+				        );
+				    }
+				}else{
+				    if(
+				        lockImage.complete && lockImage.naturalWidth>0
+				    ){
+				        ctx.drawImage(lockImage,px+8,py+8,cellW-16,cellH-32);
+				    }
 				}
 			    ctx.fillStyle="#fff";
 			    ctx.font="16px sans-serif";
-			    ctx.fillText( stageData.title, px+cellW/2, py+cellH-8 );
-			    if(clearedStages.has(index)){
+				ctx.fillText(
+				    unlocked
+				        ? stageData.title
+				        : (stageData.unlockMsg || "LOCKED"),
+				    px+cellW/2,
+				    py+cellH-8
+				);
+				if( unlocked && clearedStages.has(index) ){
 				    ctx.font="28px sans-serif";
 				    ctx.fillStyle="#0f0";
 				    ctx.fillText("✓",px+cellW-20,py+30);
@@ -1615,14 +1749,31 @@ function draw(){
 	    if(e.type==="goal" && !goalUnlocked) continue;
 	    const ex=(e.x-sx)*zoom;
 	    const ey=(e.y-sy)*zoom;
-	    ctx.font="20px sans-serif";
-	    ctx.fillText(
-	        e.type==="goal"
-	            ? "★"
-	            : (e.read?"✓":"▼"),
-	        ex,
-	        ey
-	    );
+	    
+		//ゴールをアニメにする
+		const icon=
+		    e.type==="goal"
+		        ? "★"
+		        : (e.read?"✓":"▼");
+
+		if(e.type==="goal"){
+		    const scale=
+		        1+
+		        Math.sin(performance.now()/250)*0.15;
+
+		    ctx.save();
+		    ctx.fillStyle="#ff0";
+		    ctx.font="24px sans-serif";
+		    ctx.translate(ex,ey);
+		    ctx.scale(scale,scale);
+		    ctx.fillText(icon,0,0);
+		    ctx.restore();
+		}else{
+		    ctx.fillStyle="#fff";
+		    ctx.font="20px sans-serif";
+		    ctx.fillText(icon,ex,ey);
+		}
+
 	}
 	ctx.restore();
 
@@ -1683,15 +1834,23 @@ function draw(){
 	ctx.save();
 	ctx.globalAlpha=iconAlpha;
 
-	if(USE_CHARACTER_IMAGE){
+	// キャラ画像が存在しなくても動作する
+	if(
+	    useCharacterImage
+	    &&
+	    playerImage.complete
+	    &&
+	    playerImage.naturalWidth>0
+	){
 	    const darkness=Math.min(1,clearedStages.size*CHARACTER_DARKNESS_PER_STAGE);
 	    ctx.filter=`brightness(${1-darkness})`;
-	    ctx.drawImage(playerImage,px-CHARACTER_SIZE/2,py-CHARACTER_SIZE/2,CHARACTER_SIZE,CHARACTER_SIZE);
+	    ctx.drawImage(playerImage,px-characterSize/2,py-characterSize/2,characterSize,characterSize);
 	    ctx.filter="none";
 	}else{
+		// キャラ画像が存在しない場合は赤い●記号をキャラの代わりとする
 	    ctx.fillStyle="red";
 	    ctx.beginPath();
-	    ctx.arc(px,py,8,0,Math.PI*2);
+	    ctx.arc(px,py,characterSize/3,0,Math.PI*2);
 	    ctx.fill();
 	}
 
@@ -1769,8 +1928,8 @@ function loop(){
 			    const ox=player.x, oy=player.y;
 				// 移動速度
 				const currentSpeed=
-				  PLAYER_SPEED *
-				  (dashActive ? DASH_MULTIPLIER : 1);
+				  playerSpeed *
+				  (dashActive ? dashMultiplier : 1);
 				player.x=Math.max(
 				  0,
 				  Math.min(
@@ -1792,7 +1951,7 @@ function loop(){
 				    pict2Ctx.globalCompositeOperation=
 				        "destination-out";
 				    pict2Ctx.strokeStyle="#000";
-				    pict2Ctx.lineWidth=RESTORE_BRUSH_SIZE;
+				    pict2Ctx.lineWidth=restoreBrushSize;
 				    pict2Ctx.lineCap="round";
 				    pict2Ctx.beginPath();
 				    pict2Ctx.moveTo(ox,oy);
@@ -1868,7 +2027,7 @@ addEventListener("keydown",e=>{
 			const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
     
 			const stageData=stages[index];
-				if(stageData){
+				if( stageData && isStageUnlocked(stageData) ){
 				    currentStageIndex=index;
 				    loadStage(stageData);
 				    gameMode="game";
@@ -1968,7 +2127,7 @@ btnA.onclick=()=>{
 		const pageOffset = stagePage * STAGE_SELECT_COLS * STAGE_SELECT_ROWS;
 		const index = pageOffset + stageCursorY * STAGE_SELECT_COLS + stageCursorX;
 		const stageData=stages[index];
-		if(stageData){
+		if( stageData && isStageUnlocked(stageData) ){
 		    currentStageIndex=index;
 		    loadStage(stageData);
 		    gameMode="game";
