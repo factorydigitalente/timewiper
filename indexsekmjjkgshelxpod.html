@@ -134,7 +134,7 @@ playerSpeed = 8;                  // 通常の移動速度
 dashMultiplier = 4;               // Bダッシュの倍数
 restoreBrushSize = 130;          // 修復筆の太さ
 eventDistance = 80;               // イベント当たり判定距離
-useCharacterImage=true;          // キャラ画像ON/OFF
+useCharacterImage=true;          // キャラ画像ON/OFF(true/false)
 characterSize=28;                 // キャラ画像サイズ
 
 events         : イベント一覧
@@ -203,12 +203,13 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 <script id="stageData" type="application/json">
 [
 	{
-		"title":"1. My Badge",
+		"title":"#1: My Badge",
 		"gameType":"paint",
 	    "playerSpeed":4,
 	    "dashMultiplier":5,
 	    "restoreBrushSize":400,
 	    "eventDistance":120,
+	    "useCharacterImage":false,
 	    "characterSize":70,
 		"bgm":"./bgm/bgm_s1.mp3",
 		"thumb":"./img/t01_pre.jpg",
@@ -228,12 +229,12 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"2. My Rules",
+		"title":"#2: My Rules",
 		"gameType":"panel",
-	    "playerSpeed":4,
-	    "dashMultiplier":2,
+	    "playerSpeed":6,
+	    "dashMultiplier":3,
 	    "restoreBrushSize":130,
-		"characterSize":40,
+		"characterSize":60,
 		"thumb":"./img/t02_pre.jpg",
 		"clearthumb":"./img/t02_clear.jpg",
 		"pict1":"./img/s02_r1_japanese.jpg",
@@ -248,7 +249,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"endingMessage":"I repeated my Rules. I'm perfect."
 	},
 	{
-		"title":"3. Museum",
+		"title":"#3: Museum",
 		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"bgm2":"./bgm/bgm_s4.mp3",
@@ -269,7 +270,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"4. Flower",
+		"title":"#4: Flower",
 		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t04_pre.jpg",
@@ -289,7 +290,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"5. Garden",
+		"title":"#5: Garden",
 		"gameType":"paint",
 	    "playerSpeed":2,
 	    "dashMultiplier":4,
@@ -314,7 +315,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"6. Lighthouse 1",
+		"title":"#6: Lighthouse 1",
 		"gameType":"panel",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t06_pre.jpg",
@@ -331,10 +332,10 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"endingMessage":"The lighthouse, which also served as a shop, proved to be very popular."
 	},
 	{
-		"title":"7. Lighthouse 2",
+		"title":"#7: Lighthouse 2",
 		"gameType":"restoring",
 		"unlockTerm":"5",
-		"unlockMsg":"Need #6 Clear!",
+		"unlockMsg":"#7: Need #6 Clear!",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t07_pre.jpg",
 		"clearthumb":"./img/t07_clear.jpg",
@@ -354,7 +355,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"8. Skyscraper",
+		"title":"#8: Skyscraper",
 		"gameType":"restoring",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t08_pre.jpg",
@@ -374,7 +375,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"9. Bridge",
+		"title":"#9: Bridge",
 		"gameType":"paint",
 	    "playerSpeed":3,
 	    "dashMultiplier":5,
@@ -399,7 +400,7 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"10. Lagoon",
+		"title":"#10: Lagoon",
 		"gameType":"restoring",
 	    "playerSpeed":3,
 	    "dashMultiplier":5,
@@ -424,13 +425,13 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"11. Waterfall",
+		"title":"#11: Waterfall",
 		"gameType":"restoring",
 	    "playerSpeed":3,
 	    "dashMultiplier":5,
 	    "restoreBrushSize":120,
 	    "eventDistance":60,
-	    "characterSize":40,
+	    "characterSize":35,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t11_pre.jpg",
 		"clearthumb":"./img/t11_clear.jpg",
@@ -449,127 +450,174 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		]
 	},
 	{
-		"title":"Oasis",
-		"gameType":"panel",
+		"title":"#12: Oasis",
+		"gameType":"restoring",
+	    "playerSpeed":4,
+	    "dashMultiplier":4,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t12_pre.jpg",
 		"clearthumb":"./img/t12_clear.jpg",
 		"pict1":"./img/s12_r1_oasis.jpg",
 		"pict2":"./img/s12_r2_oasis.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"cols":3,
+		"rows":10,
+		"startX":554,
+		"startY":384,
+		"zoom":0.7,
+		"clearRate":90,
+		"goalCondition":"Let's develop the oasis.",
+		"endingMessage":"The oasis became an important trading center.",
+		"events":[
+			{"id":"goal","x":1094,"y":720,"type":"goal","title":"Hotel","text":"Welcome to our desert hotel. \nRelax and unwind from your travels."}
+		]
 	},
 	{
-		"title":"Dam",
-		"gameType":"panel",
+		"title":"#13: Dam",
+		"gameType":"restoring",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":70,
+	    "eventDistance":60,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t13_pre.jpg",
 		"clearthumb":"./img/t13_clear.jpg",
 		"pict1":"./img/s13_r1_dam.jpg",
 		"pict2":"./img/s13_r2_dam.jpg",
 		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"rows":6,
+		"startX":1021,
+		"startY":726,
+		"zoom":0.8,
+		"clearRate":20,
+		"goalCondition":"Reclaim the scenery. 20%, ★ Unlock.",
+		"endingMessage":"The animals are back.",
+		"events":[
+			{"id":"goal","x":1053,"y":1000,"type":"goal","title":"River","text":"The water in this river is delicious."}
+		]
 	},
 	{
-		"title":"Village",
-		"gameType":"panel",
+		"title":"#14: Village",
+		"gameType":"restoring",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":110,
+	    "eventDistance":100,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t14_pre.jpg",
 		"clearthumb":"./img/t14_clear.jpg",
 		"pict1":"./img/s14_r1_village.jpg",
 		"pict2":"./img/s14_r2_village.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
+		"cols":8,
+		"rows":6,
+		"startX":60,
+		"startY":1280,
 		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"clearRate":95,
+		"goalCondition":"Bring back the tourists. 95%, ★ Unlock.",
+		"endingMessage":"The hot spring resort has regained its original state.",
+		"events":[
+			{"id":"goal","x":973,"y":937,"type":"goal","title":"Hot Spring","text":"Will people come back?"}
+		]
 	},
 	{
-		"title":"City",
-		"gameType":"panel",
+		"title":"#15: City",
+		"gameType":"restoring",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":150,
+	    "eventDistance":100,
+	    "characterSize":20,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t15_pre.jpg",
 		"clearthumb":"./img/t15_clear.jpg",
 		"pict1":"./img/s15_r1_city.jpg",
 		"pict2":"./img/s15_r2_city.jpg",
-		"cols":7,
+		"cols":9,
 		"rows":5,
-		"startX":300,
-		"startY":300,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"clearRate":95,
+		"goalCondition":"Lower the building. 95%, ★ Unlock.",
+		"endingMessage":"The ancient capital has been resurrected.",
+		"events":[
+			{"id":"goal","x":980,"y":700,"type":"goal","title":"Old City","text":"Is this a good thing?"}
+		]
 	},
 	{
-		"title":"Space Station",
+		"title":"#16: Space Station",
 		"gameType":"panel",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t16_pre.jpg",
 		"clearthumb":"./img/t16_clear.jpg",
 		"pict1":"./img/s16_r1_space.jpg",
 		"pict2":"./img/s16_r2_space.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
+		"cols":10,
+		"rows":4,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Accelerate the expansion.",
+		"endingMessage":"Do you want to go even further?"
 	},
 	{
-		"title":"Saturn",
+		"title":"#17: Saturn",
 		"gameType":"panel",
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t17_pre.jpg",
 		"clearthumb":"./img/t17_clear.jpg",
 		"pict1":"./img/s17_r1_saturn.jpg",
 		"pict2":"./img/s17_r2_saturn.jpg",
-		"cols":7,
+		"cols":5,
 		"rows":5,
-		"startX":300,
-		"startY":300,
+		"startX":1000,
+		"startY":700,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"goalCondition":"Take back the ring.",
+		"endingMessage":"It's about time to go home."
 	},
 	{
-		"title":"Last Work",
-		"gameType":"panel",
+		"title":"#18: Last Work",
+		"gameType":"paint",
+		"unlockTerm":"16",
+		"unlockMsg":"#18: Need #17 Clear!",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":150,
+	    "eventDistance":100,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t18_pre.jpg",
 		"clearthumb":"./img/t18_clear.jpg",
 		"pict1":"./img/s18_r1_lastwork.jpg",
 		"pict2":"./img/s18_r2_lastwork.jpg",
-		"cols":7,
-		"rows":5,
-		"startX":300,
-		"startY":300,
-		"zoom":0.287,
-		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"温泉郷は、本来の姿を取り戻した。"
+		"cols":10,
+		"rows":10,
+		"startX":511,
+		"startY":1243,
+		"zoom":0.56,
+		"clearRate":95,
+		"goalCondition":"Turn back time. Repair 95%, Gate★ Unlock.",
+		"endingMessage":"Are you prepared to break the rules?",
+		"events":[
+		    {"id":"stone1","x":265,"y":871,"hiddenUntilRepair":true,"title":"note","text":"Sit on the bench when you've finished work."},
+			{"id":"goal","x":1901,"y":1128,"type":"goal","title":"Bench","text":"Before the land was sold to this museum, this was a lake."}
+		]
 	},
 	{
-		"title":"Memories",
-		"gameType":"panel",
+		"title":"#19: Memories",
+		"gameType":"restoring",
+		"unlockTerm":"17",
+		"unlockMsg":"#19: Need #18 Clear!",
+	    "playerSpeed":3,
+	    "dashMultiplier":5,
+	    "restoreBrushSize":150,
+	    "eventDistance":100,
+	    "characterSize":30,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t19_pre.jpg",
 		"clearthumb":"./img/t19_clear.jpg",
@@ -581,12 +629,21 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"startY":300,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"Has this painting been here before?"
+		"goalCondition":"Break the Rules.",
+		"endingMessage":"Ladies and gentlemen, thank you for visiting us today. We are closing now.",
+		"events":[
+			{"id":"goal","x":1279,"y":860,"type":"goal","title":"Museum Visitor","text":"Who is this person painted black?"}
+		]
 	},
 	{
-		"title":"The End",
+		"title":"#20: The End",
 		"gameType":"panel",
+		"unlockTerm":"18",
+		"unlockMsg":"#20: Need #19 Clear!",
+	    "playerSpeed":6,
+	    "dashMultiplier":5,
+	    "useCharacterImage":false,
+	    "characterSize":70,
 		"bgm":"./bgm/bgm_s3.mp3",
 		"thumb":"./img/t20_pre.jpg",
 		"clearthumb":"./img/t20_clear.jpg",
@@ -598,8 +655,8 @@ hiddenUntilRepair : Hidden until the corresponding grid area is restored
 		"startY":300,
 		"zoom":0.287,
 		"clearRate":100,
-		"goalCondition":"接合率100%でクリア",
-		"endingMessage":"Thank you for playing!"
+		"goalCondition":"Restore the sign from when the business opened.",
+		"endingMessage":"Thank you for playing! ©2026 Factory Digital Entertainment"
 	}
 
 
@@ -883,7 +940,9 @@ const VIEW_W=574,
 //CHARACTER_DARKNESS_PER_STAGE
 //                         : Amount of darkening applied after each stage clear
 //                           (1.0 = fully dark after one stage)
-//
+// WALK_ANIM_INTERVAL      : Walking animation frame switch interval (ms)
+// PLAYER_LIGHT_RADIUS     : Radius of the light around the player
+// PLAYER_LIGHT_ALPHA      : Brightness of the light around the player
 //ENDING_ZOOM_TIME         : ① Time required to zoom out and show the entire image after clearing a stage
 //ENDING_WAIT_1            : Interval before the next ending effect
 //ENDING_GRID_TIME         : ② Time required to fade out grid lines after clearing a stage
@@ -893,12 +952,12 @@ const VIEW_W=574,
 //ENDING_TEXT_SPEED        : endingMessage display speed (ms per character)
 //========================================================
 //
-const PLAYER_SPEED        = 8;           // Normal movement speed 通常の移動速度
-const DASH_MULTIPLIER     = 4;           // B-dash speed multiplier Bダッシュの倍数
-const RESTORE_BRUSH_SIZE  = 130;         // Restoration brush size 修復筆の太さ
-const EVENT_DISTANCE      = 80;          // Event interaction distance イベント当たり判定距離
-const USE_CHARACTER_IMAGE = true;        // Enable/disable character image キャラ画像ON/OFF
-const CHARACTER_SIZE      = 28;          // Character image size キャラ画像サイズ
+const PLAYER_SPEED        = 8;           // 通常の移動速度
+const DASH_MULTIPLIER     = 4;           // Bダッシュの倍数
+const RESTORE_BRUSH_SIZE  = 130;         // 修復筆の太さ
+const EVENT_DISTANCE      = 80;          // イベント当たり判定距離
+const USE_CHARACTER_IMAGE = true;        // image キャラ画像ON/OFF
+const CHARACTER_SIZE      = 28;          // キャラ画像サイズ
 // 上記のキャラ動作設定は以下の変数にて、ステージデータJSONで任意に優先設定可。設定がない場合＆ステージ選択画面に戻ると、上記の基本値となる。
 // The character behavior settings above can be overridden per stage
 // using the following variables in the stage data JSON.
@@ -911,7 +970,7 @@ let eventDistance=EVENT_DISTANCE;
 let useCharacterImage=USE_CHARACTER_IMAGE;
 let characterSize=CHARACTER_SIZE;
 
-const CHARACTER_DARKNESS_PER_STAGE=0.97; // ステージクリアごとの黒化量(MAX1。1なら1ステージで黒化)
+const CHARACTER_DARKNESS_PER_STAGE=0.06; // ステージクリアごとの黒化量(MAX1。1なら1ステージで黒化)
 const WALK_ANIM_INTERVAL  = 90;          // 歩行アニメ切替間隔(ms)
 const PLAYER_LIGHT_RADIUS = 35;          // 足元ライトアップの半径
 const PLAYER_LIGHT_ALPHA  = 0.60;        // 足元ライトアップの明るさ
@@ -1917,8 +1976,8 @@ function draw(){
 	    );
 	    ctx.filter="none";
 	}else{
-		// キャラ画像が存在しない場合は赤い●記号をキャラの代わりとする
-	    ctx.fillStyle="red";
+		// キャラ画像が存在しない場合は白い●記号をキャラの代わりとする
+	    ctx.fillStyle="white";
 	    ctx.beginPath();
 	    ctx.arc(px,py,characterSize/3,0,Math.PI*2);
 	    ctx.fill();
